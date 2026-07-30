@@ -1,0 +1,26 @@
+### Gradle / Kotlin ###
+backend/.gradle/
+backend/build/
+backend/out/
+!backend/gradle/wrapper/gradle-wrapper.jar
+
+### IDE ###
+.idea/
+*.iml
+.vscode/
+
+### OS ###
+.DS_Store
+
+### Env ###
+.env
+*.local
+
+### Node (Week 2) ###
+node_modules/
+dist/
+
+### Python (Week 3) ###
+__pycache__/
+*.pyc
+venv/
