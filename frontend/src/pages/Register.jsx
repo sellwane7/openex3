@@ -3,7 +3,7 @@ import { useNavigate, Link } from "react-router-dom";
 import { apiFetch } from "../api/client";
 import { useAuthStore } from "../store/authStore";
 
-export default function Login() {
+export default function Register() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
@@ -16,12 +16,12 @@ export default function Login() {
     setError("");
     setLoading(true);
     try {
-      const res = await apiFetch("/api/auth/login", {
+      const res = await apiFetch("/api/auth/register", {
         method: "POST",
         body: JSON.stringify({ email, password }),
       });
       if (!res.ok) {
-        setError(res.status === 401 ? "Invalid email or password." : "Login failed.");
+        setError(res.status === 409 ? "That email is already registered." : "Registration failed.");
         return;
       }
       const data = await res.json();
@@ -36,8 +36,8 @@ export default function Login() {
 
   return (
     <div className="page">
-      <h1>Login</h1>
-      <p className="subtitle">Sign in to your OpenEx account.</p>
+      <h1>Register</h1>
+      <p className="subtitle">Create your OpenEx account.</p>
       <div className="panel">
         <form onSubmit={handleSubmit} className="auth-form">
           <label>
@@ -46,15 +46,15 @@ export default function Login() {
           </label>
           <label>
             Password
-            <input type="password" value={password} onChange={(e) => setPassword(e.target.value)} required />
+            <input type="password" value={password} onChange={(e) => setPassword(e.target.value)} required minLength={8} />
           </label>
           {error && <p className="form-error">{error}</p>}
           <button type="submit" disabled={loading}>
-            {loading ? "Signing in..." : "Sign in"}
+            {loading ? "Creating account..." : "Create account"}
           </button>
         </form>
         <p className="auth-switch">
-          No account? <Link to="/register">Register</Link>
+          Already have an account? <Link to="/login">Login</Link>
         </p>
       </div>
     </div>
