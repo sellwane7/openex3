@@ -3,7 +3,7 @@ package com.openex.config
 import com.openex.security.JwtAuthFilter
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
-import org.springframework.security.authentication.UsernamePasswordAuthenticationFilter
+import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter
 import org.springframework.security.config.annotation.web.builders.HttpSecurity
 import org.springframework.security.config.annotation.web.invoke
 import org.springframework.security.config.http.SessionCreationPolicy
@@ -27,10 +27,11 @@ class SecurityConfig(
             authorizeHttpRequests {
                 authorize("/api/health", permitAll)
                 authorize("/api/auth/**", permitAll)   // register/login are public
+                authorize("/ws/**", permitAll)         // WebSocket handshake — order book is public market data
                 authorize(anyRequest, authenticated)   // everything else needs a valid JWT
             }
-            addFilterBefore<UsernamePasswordAuthenticationFilter>(jwtAuthFilter)
         }
+        http.addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter::class.java)
         return http.build()
     }
 }

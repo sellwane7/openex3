@@ -34,11 +34,12 @@ class IdempotencyService(
         responseType: Class<T>,
         action: () -> ResponseEntity<T>
     ): ResponseEntity<T> {
-        repository.findById(idempotencyKey).ifPresent { cached ->
+        val existing = repository.findById(idempotencyKey)
+        if (existing.isPresent) {
+            val cached = existing.get()
             val body = objectMapper.readValue(cached.responseBody, responseType)
             return ResponseEntity.status(cached.responseStatus).body(body)
         }
-
         val response = action()
 
         try {

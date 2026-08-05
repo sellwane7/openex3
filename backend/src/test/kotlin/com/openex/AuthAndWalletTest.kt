@@ -73,12 +73,15 @@ class AuthAndWalletTest {
         }
 
         // 4. Confirm balance persists when re-queried
-        mockMvc.get("/api/wallets") {
+        val walletsResult = mockMvc.get("/api/wallets") {
             header("Authorization", "Bearer $token")
-        }.andExpect {
-            status { isOk() }
-            jsonPath("$[?(@.currency=='USD')].balance") { value(listOf(250.0)) }
-        }
+        }.andExpect { status { isOk() } }.andReturn()
+
+        val wallets = objectMapper.readTree(walletsResult.response.contentAsString)
+        val usdWallet = wallets.first { it.get("currency").asText() == "USD" }
+        val usdBalance = BigDecimal(usdWallet.get("balance").asText())
+
+        assertEquals(0, BigDecimal("250.00").compareTo(usdBalance))
     }
 
     @Test

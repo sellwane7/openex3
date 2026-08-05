@@ -83,7 +83,7 @@ class LedgerServiceTest {
     }
 
     @Test
-    fun `multiple legs on each side still balance correctly (e.g. fee splitting)`() {
+    fun `multiple legs on each side still balance correctly (eg fee splitting)`() {
         val buyer = newAccount()
         val seller = newAccount()
         val feeAccount = newAccount()
