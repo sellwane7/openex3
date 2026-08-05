@@ -1,8 +1,11 @@
 package com.openex.service
 
+import com.openex.dto.OrderBookLevel
+import com.openex.dto.OrderBookSnapshot
 import com.openex.entity.*
 import com.openex.repository.AccountRepository
 import com.openex.repository.OrderRepository
+import org.springframework.messaging.simp.SimpMessagingTemplate
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 import java.math.BigDecimal
@@ -31,7 +34,8 @@ data class Trade(
 class MatchingEngineService(
     private val orderRepository: OrderRepository,
     private val accountRepository: AccountRepository,
-    private val ledgerService: LedgerService
+    private val ledgerService: LedgerService,
+    private val messagingTemplate: SimpMessagingTemplate
 ) {
     // sequence gives us the "time" component of price-time priority
     private var sequence: Long = 0
@@ -115,10 +119,51 @@ class MatchingEngineService(
                 orderRepository.save(order)
             }
 
+            broadcastSnapshot(order.currencyPair)
             return trades
         } finally {
             lock.unlock()
         }
+    }
+
+    /**
+     * Aggregates the resting book into price levels (e.g. three orders at
+     * 50000 become one level with their summed quantity) and pushes it to
+     * every client subscribed to /topic/orderbook. Called after every
+     * submit() that changes book state — new resting order, a fill that
+     * removes/reduces a resting order, or both.
+     */
+    fun broadcastSnapshot(pair: String) {
+        val snapshot = snapshot(pair)
+        messagingTemplate.convertAndSend("/topic/orderbook", snapshot)
+    }
+
+    /**
+     * Builds a read-only aggregated view of the current book for a pair.
+     * Public so it can also be used to answer an initial GET/snapshot
+     * request when a client first connects (Day 10), not just pushes.
+     */
+    fun snapshot(pair: String): OrderBookSnapshot {
+        val lock = lockFor(pair)
+        lock.lock()
+        try {
+            return OrderBookSnapshot(
+                currencyPair = pair,
+                bids = aggregate(bidBook(pair)).sortedByDescending { it.price },
+                asks = aggregate(askBook(pair)).sortedBy { it.price }
+            )
+        } finally {
+            lock.unlock()
+        }
+    }
+
+    private fun aggregate(book: PriorityQueue<BookOrder>): List<OrderBookLevel> {
+        return book
+            .groupBy { it.order.price!! }
+            .map { (price, orders) ->
+                val totalQty = orders.sumOf { it.order.quantity - it.order.filledQuantity }
+                OrderBookLevel(price = price, quantity = totalQty)
+            }
     }
 
     private fun statusFor(order: Order): OrderStatus = when {

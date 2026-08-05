@@ -6,6 +6,7 @@ import com.openex.entity.Order
 import com.openex.entity.OrderType
 import com.openex.repository.OrderRepository
 import com.openex.service.IdempotencyService
+import com.openex.service.MatchingEngineService
 import jakarta.validation.Valid
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
@@ -17,7 +18,8 @@ import java.util.UUID
 @RequestMapping("/api/orders")
 class OrderController(
     private val orderRepository: OrderRepository,
-    private val idempotencyService: IdempotencyService
+    private val idempotencyService: IdempotencyService,
+    private val matchingEngineService: MatchingEngineService
 ) {
 
     @PostMapping
@@ -47,7 +49,7 @@ class OrderController(
             // This is the real "place the order" logic. It only runs the
             // FIRST time a given Idempotency-Key is seen — every mashed
             // "Buy" click after that just replays this same response.
-            val order = orderRepository.save(
+            val saved = orderRepository.save(
                 Order(
                     userId = userId,
                     side = req.side,
@@ -57,6 +59,13 @@ class OrderController(
                     currencyPair = req.currencyPair
                 )
             )
+
+            // Hand it to the matching engine: this fills it against the
+            // resting book as far as possible, persists any resulting
+            // trades' balance changes through the ledger, and broadcasts
+            // the updated order book to every WebSocket subscriber.
+            matchingEngineService.submit(saved)
+            val order = orderRepository.findById(saved.id).orElse(saved)
 
             ResponseEntity.status(HttpStatus.CREATED).body(
                 OrderResponse(
