@@ -27,3 +27,9 @@ venv/
 
 ### Logs ###
 *.log
+
+### Python venv ###
+venv/
+
+### Vite cache ###
+frontend/.vite/
