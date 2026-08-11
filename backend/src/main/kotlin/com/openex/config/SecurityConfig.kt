@@ -43,6 +43,7 @@ class SecurityConfig(
                 authorize("/api/health", permitAll)
                 authorize("/api/auth/**", permitAll)   // register/login are public
                 authorize("/ws/**", permitAll)         // WebSocket handshake — order book is public market data
+                authorize("/api/orderbook/**", permitAll) // REST snapshot — same public market data, just pull instead of push
                 authorize(anyRequest, authenticated)   // everything else needs a valid JWT
             }
         }
