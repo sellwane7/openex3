@@ -117,3 +117,226 @@ a { color: inherit; }
   font-size: 0.88rem;
   font-family: var(--font-mono);
 }
+
+.form-error {
+  color: var(--danger);
+  font-size: 0.85rem;
+}
+
+.form-success {
+  color: var(--accent);
+  font-size: 0.85rem;
+}
+
+/* ---- Trading page layout ---- */
+.trading-grid {
+  display: grid;
+  grid-template-columns: minmax(260px, 340px) 1fr;
+  gap: 1.25rem;
+  align-items: start;
+}
+
+@media (max-width: 800px) {
+  .trading-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+.trading-grid h2,
+.my-orders h2 {
+  font-family: var(--font-mono);
+  font-size: 1rem;
+  font-weight: 500;
+  margin: 0 0 1rem;
+}
+
+/* ---- Order form (Day 9) ---- */
+.order-form {
+  display: flex;
+  flex-direction: column;
+  gap: 0.9rem;
+}
+
+.order-form label {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+  font-size: 0.82rem;
+  color: var(--muted);
+}
+
+.order-form input {
+  background: var(--bg);
+  border: 1px solid var(--panel-border);
+  border-radius: 4px;
+  padding: 0.5rem 0.6rem;
+  color: var(--ink);
+  font-family: var(--font-mono);
+  font-size: 0.9rem;
+}
+
+.order-form input:focus {
+  outline: none;
+  border-color: var(--accent-dim);
+}
+
+.segmented {
+  display: flex;
+  border: 1px solid var(--panel-border);
+  border-radius: 4px;
+  overflow: hidden;
+}
+
+.segmented button {
+  flex: 1;
+  background: transparent;
+  border: none;
+  color: var(--muted);
+  padding: 0.5rem 0;
+  font-size: 0.85rem;
+  cursor: pointer;
+  font-family: var(--font-sans);
+}
+
+.segmented button + button {
+  border-left: 1px solid var(--panel-border);
+}
+
+.segmented button.active {
+  background: var(--panel-border);
+  color: var(--ink);
+}
+
+.segmented button.active.buy {
+  background: rgba(46, 230, 166, 0.15);
+  color: var(--accent);
+}
+
+.segmented button.active.sell {
+  background: rgba(240, 82, 92, 0.15);
+  color: var(--danger);
+}
+
+.submit-order {
+  border: none;
+  border-radius: 4px;
+  padding: 0.65rem 0;
+  font-size: 0.92rem;
+  font-weight: 600;
+  cursor: pointer;
+  color: #0b0e11;
+}
+
+.submit-order.buy {
+  background: var(--accent);
+}
+
+.submit-order.sell {
+  background: var(--danger);
+  color: #fff;
+}
+
+.submit-order:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+/* ---- Order book (Day 10) ---- */
+.order-book-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 1rem;
+}
+
+.order-book-header h2 {
+  margin: 0;
+}
+
+.ws-status {
+  font-family: var(--font-mono);
+  font-size: 0.75rem;
+}
+
+.ws-connected {
+  color: var(--accent);
+}
+
+.ws-disconnected {
+  color: var(--muted);
+}
+
+.order-book-columns {
+  display: flex;
+  justify-content: space-between;
+  color: var(--muted);
+  font-size: 0.75rem;
+  padding: 0 0.25rem 0.4rem;
+  border-bottom: 1px solid var(--panel-border);
+}
+
+.order-book-side {
+  display: flex;
+  flex-direction: column;
+}
+
+.order-book-row {
+  display: flex;
+  justify-content: space-between;
+  padding: 0.3rem 0.25rem;
+  font-family: var(--font-mono);
+  font-size: 0.85rem;
+}
+
+.ask-row .row-price {
+  color: var(--danger);
+}
+
+.bid-row .row-price {
+  color: var(--accent);
+}
+
+.order-book-spread {
+  text-align: center;
+  color: var(--muted);
+  font-size: 0.75rem;
+  font-family: var(--font-mono);
+  padding: 0.5rem 0;
+  border-top: 1px dashed var(--panel-border);
+  border-bottom: 1px dashed var(--panel-border);
+  margin: 0.25rem 0;
+}
+
+/* ---- My orders table ---- */
+.my-orders {
+  margin-top: 1.25rem;
+}
+
+.orders-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.85rem;
+}
+
+.orders-table th {
+  text-align: left;
+  color: var(--muted);
+  font-weight: 500;
+  font-size: 0.75rem;
+  padding: 0.4rem 0.5rem;
+  border-bottom: 1px solid var(--panel-border);
+}
+
+.orders-table td {
+  padding: 0.45rem 0.5rem;
+  border-bottom: 1px solid var(--panel-border);
+  font-family: var(--font-mono);
+}
+
+.side-buy {
+  color: var(--accent);
+}
+
+.side-sell {
+  color: var(--danger);
+}
