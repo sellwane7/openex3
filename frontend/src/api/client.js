@@ -5,6 +5,10 @@ import { useAuthStore } from "../store/authStore";
 // this at your deployed backend URL via an env var instead.
 const API_BASE = import.meta.env.VITE_API_BASE_URL || "http://localhost:8080";
 
+// Same host as API_BASE, just with the http(s) scheme swapped for ws(s) —
+// used by the Day 10 STOMP client to reach the backend's /ws endpoint.
+export const WS_BASE = API_BASE.replace(/^http/, "ws");
+
 export async function apiFetch(path, options = {}) {
   const token = useAuthStore.getState().token;
 
