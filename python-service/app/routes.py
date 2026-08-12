@@ -1,6 +1,7 @@
 from flask import Blueprint, jsonify, request
 
 from app.market_simulator import get_market_snapshot
+from app.chat_agent import ask_trading_assistant
 
 bp = Blueprint("market", __name__)
 
@@ -33,3 +34,22 @@ def market_ticks():
         "count": len(data),
         "ticks": data,
     }), 200
+
+
+@bp.route("/api/chat", methods=["POST"])
+def chat():
+    """
+    Chat with the AI trading assistant.
+
+    Expects JSON body: { "message": "..." }
+    Returns: { "reply": "..." }
+    """
+    body = request.get_json(silent=True) or {}
+    user_message = body.get("message", "").strip()
+
+    if not user_message:
+        return jsonify({"error": "message is required"}), 400
+
+    reply = ask_trading_assistant(user_message)
+
+    return jsonify({"reply": reply}), 200
