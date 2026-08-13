@@ -1,4 +1,4 @@
-from flask import Blueprint, jsonify, request
+from flask import Blueprint, jsonify, request, g
 
 from app.market_simulator import get_market_snapshot
 from app.chat_agent import ask_trading_assistant
@@ -42,6 +42,7 @@ def chat():
     Chat with the AI trading assistant.
 
     Expects JSON body: { "message": "..." }
+    Expects header: Authorization: Bearer <jwt>  (forwarded to the wallet tool)
     Returns: { "reply": "..." }
     """
     body = request.get_json(silent=True) or {}
@@ -49,6 +50,12 @@ def chat():
 
     if not user_message:
         return jsonify({"error": "message is required"}), 400
+
+    # Stash the caller's JWT on the request context so any tool the agent
+    # invokes during this request (like get_wallet_balances) can use it.
+    auth_header = request.headers.get("Authorization", "")
+    if auth_header.startswith("Bearer "):
+        g.jwt_token = auth_header.removeprefix("Bearer ")
 
     reply = ask_trading_assistant(user_message)
 

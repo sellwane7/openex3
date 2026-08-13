@@ -1,15 +1,15 @@
 """
-AI trading assistant powered by a local Ollama model via LangChain.
-
-Today this exposes a simple persona-driven chat completion. Day 13 will
-extend this into a proper LangChain agent that can call tools (like
-fetching the user's real wallet balance from the Kotlin backend).
+AI trading assistant powered by a local Ollama model via LangChain,
+now upgraded to a proper agent that can call tools — starting with
+looking up the user's real wallet balance from the Kotlin backend.
 """
 
 from __future__ import annotations
 
 from langchain_ollama import ChatOllama
-from langchain_core.messages import SystemMessage, HumanMessage
+from langgraph.prebuilt import create_react_agent
+
+from app.wallet_tool import get_wallet_balances
 
 FINANCIAL_PERSONA = """\
 You are Nova, the AI trading assistant embedded in OpenEx, a simulated \
@@ -19,25 +19,39 @@ balances, and general trading concepts.
 Rules you must follow:
 - Keep answers short, clear, and beginner-friendly.
 - Never give real financial advice or tell someone to buy/sell a real asset.
-- Remind users, when relevant, that OpenEx uses simulated funds only.
-- If you don't know something about the user's actual account, say so \
-honestly instead of guessing.
+- Only mention that OpenEx uses simulated funds if the user seems confused \
+about that, asks directly, or is about to place a large/risky-sounding \
+order. Do not repeat this reminder on routine balance or portfolio checks.
+- When asked about balance, portfolio, or how much money/BTC someone has, \
+you MUST use tShe get_wallet_balances tool to check — never guess or make \
+up a number.
+- If a tool tells you it couldn't fetch the balance, relay that honestly \
+instead of inventing one.
 """
 
-# Built once and reused across requests, since creating this object
-# just configures the connection, it doesn't call the model yet.
-_llm = ChatOllama(model="llama3.2", temperature=0.3)
+# Built once and reused across requests. temperature=0 keeps tool-calling
+# decisions consistent — we don't want creative guessing about when to
+# call a financial tool.
+_llm = ChatOllama(model="llama3.2", temperature=0)
+
+_agent = create_react_agent(
+    model=_llm,
+    tools=[get_wallet_balances],
+    prompt=FINANCIAL_PERSONA,
+)
 
 
 def ask_trading_assistant(user_message: str) -> str:
     """
-    Send a user message to the local Ollama model with the financial
-    persona system prompt, and return the model's plain text reply.
+    Send a user message to the agent. The agent decides on its own
+    whether it needs to call a tool (like fetching wallet balances)
+    before answering, using ReAct-style reasoning under the hood.
     """
-    messages = [
-        SystemMessage(content=FINANCIAL_PERSONA),
-        HumanMessage(content=user_message),
-    ]
+    result = _agent.invoke({
+        "messages": [{"role": "user", "content": user_message}]
+    })
 
-    response = _llm.invoke(messages)
-    return response.content
+    # The agent returns the full conversation; the final message is the
+    # assistant's answer after any tool calls have been resolved.
+    final_message = result["messages"][-1]
+    return final_message.content
