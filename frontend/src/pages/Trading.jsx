@@ -2,6 +2,7 @@ import { useCallback, useEffect, useState } from "react";
 import { apiFetch } from "../api/client";
 import OrderForm from "../components/OrderForm";
 import OrderBook from "../components/OrderBook";
+import MarketChart from "../components/MarketChart";
 
 const CURRENCY_PAIR = "BTC-USD";
 
@@ -35,6 +36,11 @@ export default function Trading() {
       <div className="trading-grid">
         <OrderForm currencyPair={CURRENCY_PAIR} onOrderPlaced={loadOrders} />
         <OrderBook currencyPair={CURRENCY_PAIR} />
+      </div>
+
+      <div className="panel market-chart-panel">
+        <h2>Market Chart · {CURRENCY_PAIR}</h2>
+        <MarketChart pair={CURRENCY_PAIR} />
       </div>
 
       <div className="panel my-orders">
