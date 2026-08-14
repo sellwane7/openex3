@@ -496,3 +496,117 @@ a { color: inherit; }
   opacity: 0.5;
   cursor: not-allowed;
 }
+
+/* ===== Dashboard Portfolio ===== */
+.portfolio-hero {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  padding: 28px 32px;
+  background: linear-gradient(135deg, #12161c 0%, #171c24 100%);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 14px;
+  margin-bottom: 24px;
+}
+
+.portfolio-hero__label {
+  color: #8592a3;
+  font-size: 13px;
+  letter-spacing: 0.02em;
+  text-transform: uppercase;
+}
+
+.portfolio-hero__value {
+  font-size: 42px;
+  font-weight: 700;
+  color: #e6ebf1;
+  font-variant-numeric: tabular-nums;
+  margin-top: 4px;
+}
+
+.portfolio-hero__note {
+  color: #3ee08a;
+  font-size: 13px;
+  margin-top: 6px;
+}
+
+.balance-cards {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 16px;
+}
+
+.balance-card {
+  background: #12161c;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-left: 3px solid var(--accent);
+  border-radius: 12px;
+  padding: 20px;
+}
+
+.balance-card__header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 12px;
+}
+
+.balance-card__symbol {
+  font-size: 20px;
+  color: var(--accent);
+}
+
+.balance-card__currency {
+  font-weight: 600;
+  color: #e6ebf1;
+  letter-spacing: 0.02em;
+}
+
+.balance-card__amount {
+  font-size: 28px;
+  font-weight: 700;
+  color: #e6ebf1;
+  font-variant-numeric: tabular-nums;
+}
+
+.balance-card__meta {
+  color: #8592a3;
+  font-size: 13px;
+  margin-top: 6px;
+}
+/* ===== Trading Terminal Layout ===== */
+.terminal-layout {
+  display: grid;
+  grid-template-columns: 2fr 1fr;
+  gap: 20px;
+  align-items: start;
+}
+
+.terminal-main {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  min-width: 0;
+}
+
+.terminal-sidebar {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  position: sticky;
+  top: 20px;
+}
+
+@media (max-width: 900px) {
+  .terminal-layout {
+    grid-template-columns: 1fr;
+  }
+  .terminal-sidebar {
+    position: static;
+  }
+}
+
+.terminal-sidebar .panel h2 {
+  font-size: 18px;
+  white-space: nowrap;
+}
