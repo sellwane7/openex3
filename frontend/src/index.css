@@ -610,3 +610,45 @@ a { color: inherit; }
   font-size: 18px;
   white-space: nowrap;
 }
+
+/* ===== Navbar Live Ticker ===== */
+.nav-ticker {
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+  padding: 4px 12px;
+  background: #12161c;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 20px;
+  font-variant-numeric: tabular-nums;
+  transition: border-color 0.3s ease;
+}
+
+.nav-ticker__pair {
+  font-size: 11px;
+  color: #8592a3;
+  letter-spacing: 0.03em;
+}
+
+.nav-ticker__price {
+  font-size: 14px;
+  font-weight: 600;
+  color: #e6ebf1;
+  transition: color 0.3s ease;
+}
+
+.nav-ticker--up .nav-ticker__price {
+  color: #3ee08a;
+}
+
+.nav-ticker--down .nav-ticker__price {
+  color: #e05a5a;
+}
+
+.nav-ticker--up {
+  border-color: rgba(62, 224, 138, 0.3);
+}
+
+.nav-ticker--down {
+  border-color: rgba(224, 90, 90, 0.3);
+}
