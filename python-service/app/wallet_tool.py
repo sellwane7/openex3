@@ -9,7 +9,9 @@ from __future__ import annotations
 import requests
 from langchain_core.tools import tool
 
-KOTLIN_API_BASE = "http://127.0.0.1:8080"
+import os
+
+KOTLIN_API_BASE = os.environ.get("KOTLIN_API_BASE_URL", "http://127.0.0.1:8080")
 
 
 def _get_current_token() -> str | None:

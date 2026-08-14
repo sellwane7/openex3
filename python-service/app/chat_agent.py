@@ -32,7 +32,10 @@ instead of inventing one.
 # Built once and reused across requests. temperature=0 keeps tool-calling
 # decisions consistent — we don't want creative guessing about when to
 # call a financial tool.
-_llm = ChatOllama(model="llama3.2", temperature=0)
+import os
+
+_ollama_base_url = os.environ.get("OLLAMA_BASE_URL", "http://localhost:11434")
+_llm = ChatOllama(model="llama3.2", temperature=0, base_url=_ollama_base_url)
 
 _agent = create_react_agent(
     model=_llm,

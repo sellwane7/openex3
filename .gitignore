@@ -33,3 +33,6 @@ venv/
 
 ### Vite cache ###
 frontend/.vite/
+
+### Docker build cache (local only, not committed) ###
+backend/.docker-gradle-cache/

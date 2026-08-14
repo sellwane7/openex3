@@ -1,97 +1,181 @@
-# OpenEx 3.0 — Week 1: Core Engine & DB Integrity
+# OpenEx 3.0 - A Simulated Crypto Exchange & AI Trading Terminal
 
-This is the Week 1 deliverable: a Kotlin/Spring Boot backend with a strict
-double-entry ledger, JWT auth, idempotent order creation, and an in-memory
-price-time-priority matching engine.
+A lightweight, simulated crypto exchange built as a 3-week capstone project, using a fully open-source microservices architecture: a Kotlin/Spring Boot trading engine, a React real-time UI, and a Python/LangChain AI trading assistant powered by a local Ollama model.
+
+## Architecture
+                +-------------------+
+                |   React Frontend  |  (Vite, port 5173)
+                +---------+---------+
+                          |
+          +---------------+----------------+
+          |                                 |
++---------v---------+           +-----------v-----------+
+|  Kotlin Backend    |           |   Python AI Service    |
+|  Spring Boot       |<----------|   Flask + LangChain    |
+|  port 8080         |  wallet   |   port 5000             |
++---------+----------+  lookup   +-----------+-------------+
+          |                                   |
++---------+----------+                        |
+|                    |                +--------v--------+
+
++---v----+ +----v----+ | Ollama (host) |
+|Postgres| | Redis | | llama3.2, 11434 |
+| 5432 | | 6379 | +-------------------+
++--------+ +---------+
+
+
+- **Backend (Kotlin/Spring Boot)** - double-entry ledger, JWT auth, idempotent orders, in-memory matching engine, WebSocket order book broadcasting.
+- **Frontend (React/Vite)** - trading terminal UI: auth, order forms, live order book, market chart, floating AI chat widget.
+- **Python AI Service (Flask/LangChain)** - simulated market data (Pandas/NumPy), and a ReAct agent that can call a tool to fetch a user's real wallet balance from the Kotlin backend.
+- **Ollama** - runs the local LLM (`llama3.2`) that powers the AI assistant. Runs natively on the host machine rather than in a container, since Ollama's own GPU/CPU acceleration works best with direct hardware access; the Python service reaches it via `host.docker.internal`.
 
 ## Prerequisites
 
-- JDK 17+
-- Docker + Docker Compose
-- (Optional but recommended) IntelliJ IDEA Community Edition
+- Docker Desktop (with Docker Compose)
+- [Ollama](https://ollama.com/download) installed on the host machine
+- Node.js 18+ (only needed if running the frontend outside Docker, see below)
+
+## One-time setup
+
+1. **Install and start Ollama, then pull the model:**
+```bash
+   ollama pull llama3.2
+```
+   Ollama runs as a background service once installed - no need to manually start it each time.
+
+2. **Clone the repo and enter the project root:**
+```bash
+   cd openex3
+```
+
+## Running the full stack
+
+The backend, database, cache, and AI service all start with a single command:
+
+```bash
+docker-compose up -d
+```
+
+This will:
+- Start Postgres and Redis, and wait for both to report healthy
+- Build and start the Kotlin backend once the database is healthy (runs Flyway migrations automatically)
+- Build and start the Python AI service once the backend is healthy
+- All four containers include health checks (`docker ps` will show `(healthy)` for each)
+
+Check everything is up:
+```bash
+docker ps
+```
+
+**Note on first build:** the very first `docker-compose up` will take several minutes since it downloads base images and installs dependencies. Subsequent runs are much faster due to Docker's layer caching.
+
+### Running the frontend
+
+The React frontend isn't containerized (kept as a native dev-server workflow for fast iteration). Run it separately:
+
+```bash
+cd frontend
+npm install
+npm run dev
+```
+
+Then open `http://localhost:5173`.
+
+## Service ports
+
+| Service | Port | Purpose |
+|---|---|---|
+| Frontend (Vite) | 5173 | React trading terminal |
+| Backend (Kotlin) | 8080 | REST API, JWT auth, WebSocket order book |
+| Python AI Service | 5000 | Market data API, AI chat |
+| Postgres | 5432 | Primary database |
+| Redis | 6379 | Idempotency key cache |
+| Ollama | 11434 | Local LLM inference (host) |
 
 ## Day-by-day map of this repo
+
+### Week 1 - Core Engine & DB Integrity (Kotlin)
 
 | Day | What it added | Where to look |
 |---|---|---|
 | 1 | Project skeleton, Docker Compose, CI | `backend/build.gradle.kts`, `docker-compose.yml`, `.github/workflows/ci.yml` |
-| 2 | Double-entry ledger | `db/migration/V1__init_ledger_schema.sql`, `service/LedgerService.kt`, `LedgerServiceTest.kt` |
+| 2 | Double-entry ledger | `db/migration/V1__init_ledger_schema.sql`, `service/LedgerService.kt` |
 | 3 | JWT auth + wallet deposit | `security/`, `controller/AuthController.kt`, `controller/WalletController.kt` |
-| 4 | Orders + idempotency | `db/migration/V3__orders_and_idempotency.sql`, `service/IdempotencyService.kt`, `controller/OrderController.kt` |
-| 5 | Matching engine | `service/MatchingEngineService.kt`, `MatchingEngineServiceTest.kt` |
+| 4 | Orders + idempotency | `service/IdempotencyService.kt`, `controller/OrderController.kt` |
+| 5 | Matching engine | `service/MatchingEngineService.kt` |
 
-## First-time setup
+### Week 2 - Real-Time Streaming & UI (React)
 
-1. Generate the Gradle wrapper (needed for CI and for running without a local Gradle install):
-   ```bash
-   cd backend
-   gradle wrapper --gradle-version 8.9
-   ```
-   (If you don't have Gradle installed, install it once via `sdk install gradle` or `brew install gradle`, or download it from gradle.org — you only need it this one time to generate the wrapper.)
+| Day | What it added | Where to look |
+|---|---|---|
+| 6 | Spring WebSockets, order book broadcasting | `config/WebSocketConfig.kt`, `controller/OrderBookController.kt` |
+| 7 | React scaffolding, routing, Zustand state | `frontend/src/App.jsx`, `frontend/src/store/authStore.js` |
+| 8 | Login/register UI, wallet dashboard | `frontend/src/pages/Login.jsx`, `frontend/src/pages/Dashboard.jsx` |
+| 9 | Order execution forms, idempotency headers | `frontend/src/components/OrderForm.jsx` |
+| 10 | Live order book rendering | `frontend/src/components/OrderBook.jsx`, `frontend/src/hooks/useOrderBookSocket.js` |
 
-2. Start Postgres + Redis:
-   ```bash
-   docker compose up -d postgres redis
-   ```
+### Week 3 - Analytics & Agentic AI (Python)
 
-3. Run the backend:
-   ```bash
-   cd backend
-   ./gradlew bootRun
-   ```
-   Flyway will run the migrations automatically on startup. Check `http://localhost:8080/api/health`.
+| Day | What it added | Where to look |
+|---|---|---|
+| 11 | Flask API, market simulator (Pandas/NumPy) | `python-service/app/market_simulator.py` |
+| 12 | Ollama + LangChain chat, financial persona | `python-service/app/chat_agent.py` |
+| 13 | Agentic tool calling (real wallet lookup) | `python-service/app/wallet_tool.py` |
+| 14 | Chart.js market chart, floating chat UI | `frontend/src/components/MarketChart.jsx`, `frontend/src/components/ChatWidget.jsx` |
+| 15 | Docker health checks, full-stack cold start, this README | `docker-compose.yml` |
 
-4. Run the full test suite (uses an in-memory H2 database, no Docker needed):
-   ```bash
-   cd backend
-   ./gradlew test
-   ```
-
-## Manually proving Day 3 (JWT login + deposit) with curl
+## Manually proving the AI agent works (curl)
 
 ```bash
-# Register
+# Register a user
 curl -X POST http://localhost:8080/api/auth/register \
   -H "Content-Type: application/json" \
   -d '{"email":"me@example.com","password":"supersecret1"}'
 
-# Login (copy the "token" from the response)
-curl -X POST http://localhost:8080/api/auth/login \
-  -H "Content-Type: application/json" \
-  -d '{"email":"me@example.com","password":"supersecret1"}'
-
-# Deposit 250 USD (replace <TOKEN>)
+# Deposit funds (replace <TOKEN> with the token from registration)
 curl -X POST http://localhost:8080/api/wallets/deposit \
   -H "Authorization: Bearer <TOKEN>" \
   -H "Content-Type: application/json" \
-  -d '{"currency":"USD","amount":250.00}'
+  -d '{"currency":"USD","amount":2500}'
 
-# Check balances
-curl http://localhost:8080/api/wallets -H "Authorization: Bearer <TOKEN>"
+# Ask the AI assistant about your balance - it calls the Kotlin API live
+curl -X POST http://localhost:5000/api/chat \
+  -H "Authorization: Bearer <TOKEN>" \
+  -H "Content-Type: application/json" \
+  -d '{"message":"What is my USD balance?"}'
 ```
 
-## Manually proving Day 4 (idempotency) with curl
+The AI's reply should quote the real, current balance - proof the LangChain agent is genuinely calling the tool rather than guessing.
 
-Run this exact command twice with the same `Idempotency-Key` — you'll get
-the identical response both times, and only one row in the `orders` table:
+## Running tests
 
 ```bash
-curl -X POST http://localhost:8080/api/orders \
-  -H "Authorization: Bearer <TOKEN>" \
-  -H "Idempotency-Key: 11111111-1111-1111-1111-111111111111" \
-  -H "Content-Type: application/json" \
-  -d '{"side":"BUY","type":"LIMIT","price":50000.00,"quantity":0.01}'
+cd backend
+./gradlew test
 ```
 
-## Git workflow for the week (per the SDLC rules in the brief)
+Uses an in-memory H2 database, no Docker required.
 
-```
-feature/project-scaffolding        (Day 1)
-feature/double-entry-ledger        (Day 2)
-feature/jwt-auth-and-wallet        (Day 3)
-feature/order-idempotency          (Day 4)
-feature/matching-engine            (Day 5)
-```
+## Git workflow (per the SDLC rules in the brief)
 
-Each branch → PR into `main` → CI must pass → review → merge. Suggested
-final PR title for the week, matching the brief: **`feat(core): matching engine and ledger integration`**.
+Feature-branch workflow, Conventional Commits, PR required for every merge into `main`, CI must pass before merge.
+
+feature/project-scaffolding (Week 1, Day 1)
+feature/double-entry-ledger (Week 1, Day 2)
+feature/jwt-auth-and-wallet (Week 1, Day 3)
+feature/order-idempotency (Week 1, Day 4)
+feature/matching-engine (Week 1, Day 5)
+feature/websocket-orderbook (Week 2, Day 6)
+feature/react-scaffold (Week 2, Days 7-10)
+feature/market-simulator (Week 3, Days 11-15)
+
+
+PR titles matching the brief's requirements:
+- `feat(core): matching engine and ledger integration` (Week 1)
+- `feat(ui): real-time order book integration` (Week 2)
+- `feat(ai): agentic trading assistant` (Week 3)
+
+## Known design decisions
+
+- **Ollama runs natively, not in a container.** The brief describes an "Ollama container running locally"; here Ollama is installed directly on the host instead. This was a deliberate trade-off for reliable local performance during development. The Python service is fully configured to reach it via `host.docker.internal`, so this could be swapped for a containerized `ollama/ollama` service with minimal changes if required.
+- **The React frontend runs via `npm run dev`, not Docker.** Kept as a native dev-server workflow for fast hot-reloading during active development.
