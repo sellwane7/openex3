@@ -27,3 +27,12 @@ venv/
 
 ### Logs ###
 *.log
+
+### Python venv ###
+venv/
+
+### Vite cache ###
+frontend/.vite/
+
+### Docker build cache (local only, not committed) ###
+backend/.docker-gradle-cache/

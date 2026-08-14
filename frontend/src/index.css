@@ -340,3 +340,315 @@ a { color: inherit; }
 .side-sell {
   color: var(--danger);
 }
+
+/* ===== Market Chart ===== */
+.market-chart-panel {
+  margin-top: 24px;
+}
+
+.market-chart {
+  padding: 8px 0;
+}
+
+.market-chart--loading,
+.market-chart--error {
+  padding: 32px;
+  text-align: center;
+  color: #8592a3;
+}
+
+.market-chart--error {
+  color: #e05a5a;
+}
+
+/* ===== Chat Widget ===== */
+.chat-widget {
+  position: fixed;
+  bottom: 24px;
+  right: 24px;
+  z-index: 1000;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  font-family: inherit;
+}
+
+.chat-widget__toggle {
+  width: 56px;
+  height: 56px;
+  border-radius: 50%;
+  border: none;
+  background: #3ee08a;
+  color: #0b0f14;
+  font-size: 22px;
+  cursor: pointer;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.4);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-top: 12px;
+}
+
+.chat-widget__toggle:hover {
+  filter: brightness(1.05);
+}
+
+.chat-widget__panel {
+  width: 340px;
+  max-height: 460px;
+  background: #12161c;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 12px;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.5);
+}
+
+.chat-widget__header {
+  padding: 12px 16px;
+  background: #171c24;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-weight: 600;
+  color: #e6ebf1;
+  font-size: 14px;
+}
+
+.chat-widget__close {
+  background: none;
+  border: none;
+  color: #8592a3;
+  font-size: 18px;
+  cursor: pointer;
+  line-height: 1;
+}
+
+.chat-widget__messages {
+  flex: 1;
+  overflow-y: auto;
+  padding: 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  min-height: 200px;
+}
+
+.chat-widget__message {
+  padding: 8px 12px;
+  border-radius: 10px;
+  font-size: 13px;
+  line-height: 1.4;
+  max-width: 85%;
+  white-space: pre-wrap;
+}
+
+.chat-widget__message--assistant {
+  background: #1c232c;
+  color: #c7d0da;
+  align-self: flex-start;
+}
+
+.chat-widget__message--user {
+  background: #3ee08a;
+  color: #0b0f14;
+  align-self: flex-end;
+}
+
+.chat-widget__message--typing {
+  font-style: italic;
+  color: #8592a3;
+}
+
+.chat-widget__input-row {
+  display: flex;
+  gap: 8px;
+  padding: 10px;
+  border-top: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.chat-widget__input-row textarea {
+  flex: 1;
+  resize: none;
+  background: #0e1217;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 8px;
+  color: #e6ebf1;
+  padding: 8px 10px;
+  font-size: 13px;
+  font-family: inherit;
+  max-height: 80px;
+}
+
+.chat-widget__input-row button {
+  background: #3ee08a;
+  color: #0b0f14;
+  border: none;
+  border-radius: 8px;
+  padding: 0 14px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.chat-widget__input-row button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* ===== Dashboard Portfolio ===== */
+.portfolio-hero {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  padding: 28px 32px;
+  background: linear-gradient(135deg, #12161c 0%, #171c24 100%);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 14px;
+  margin-bottom: 24px;
+}
+
+.portfolio-hero__label {
+  color: #8592a3;
+  font-size: 13px;
+  letter-spacing: 0.02em;
+  text-transform: uppercase;
+}
+
+.portfolio-hero__value {
+  font-size: 42px;
+  font-weight: 700;
+  color: #e6ebf1;
+  font-variant-numeric: tabular-nums;
+  margin-top: 4px;
+}
+
+.portfolio-hero__note {
+  color: #3ee08a;
+  font-size: 13px;
+  margin-top: 6px;
+}
+
+.balance-cards {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 16px;
+}
+
+.balance-card {
+  background: #12161c;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-left: 3px solid var(--accent);
+  border-radius: 12px;
+  padding: 20px;
+}
+
+.balance-card__header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 12px;
+}
+
+.balance-card__symbol {
+  font-size: 20px;
+  color: var(--accent);
+}
+
+.balance-card__currency {
+  font-weight: 600;
+  color: #e6ebf1;
+  letter-spacing: 0.02em;
+}
+
+.balance-card__amount {
+  font-size: 28px;
+  font-weight: 700;
+  color: #e6ebf1;
+  font-variant-numeric: tabular-nums;
+}
+
+.balance-card__meta {
+  color: #8592a3;
+  font-size: 13px;
+  margin-top: 6px;
+}
+/* ===== Trading Terminal Layout ===== */
+.terminal-layout {
+  display: grid;
+  grid-template-columns: 2fr 1fr;
+  gap: 20px;
+  align-items: start;
+}
+
+.terminal-main {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  min-width: 0;
+}
+
+.terminal-sidebar {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  position: sticky;
+  top: 20px;
+}
+
+@media (max-width: 900px) {
+  .terminal-layout {
+    grid-template-columns: 1fr;
+  }
+  .terminal-sidebar {
+    position: static;
+  }
+}
+
+.terminal-sidebar .panel h2 {
+  font-size: 18px;
+  white-space: nowrap;
+}
+
+/* ===== Navbar Live Ticker ===== */
+.nav-ticker {
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+  padding: 4px 12px;
+  background: #12161c;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 20px;
+  font-variant-numeric: tabular-nums;
+  transition: border-color 0.3s ease;
+}
+
+.nav-ticker__pair {
+  font-size: 11px;
+  color: #8592a3;
+  letter-spacing: 0.03em;
+}
+
+.nav-ticker__price {
+  font-size: 14px;
+  font-weight: 600;
+  color: #e6ebf1;
+  transition: color 0.3s ease;
+}
+
+.nav-ticker--up .nav-ticker__price {
+  color: #3ee08a;
+}
+
+.nav-ticker--down .nav-ticker__price {
+  color: #e05a5a;
+}
+
+.nav-ticker--up {
+  border-color: rgba(62, 224, 138, 0.3);
+}
+
+.nav-ticker--down {
+  border-color: rgba(224, 90, 90, 0.3);
+}
