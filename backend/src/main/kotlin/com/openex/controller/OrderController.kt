@@ -3,6 +3,7 @@ package com.openex.controller
 import com.openex.dto.CreateOrderRequest
 import com.openex.dto.OrderResponse
 import com.openex.entity.Order
+import com.openex.entity.OrderStatus
 import com.openex.entity.OrderType
 import com.openex.repository.OrderRepository
 import com.openex.service.IdempotencyService
@@ -80,6 +81,39 @@ class OrderController(
                 )
             )
         }
+    }
+
+    @DeleteMapping("/{id}")
+    fun cancelOrder(
+        authentication: Authentication,
+        @PathVariable id: UUID
+    ): ResponseEntity<OrderResponse> {
+        val userId = UUID.fromString(authentication.principal as String)
+        val existing = orderRepository.findById(id).orElse(null)
+            ?: return ResponseEntity.notFound().build()
+        if (existing.userId != userId) {
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).build()
+        }
+        if (existing.status == OrderStatus.FILLED ||
+            existing.status == OrderStatus.CANCELLED
+        ) {
+            // Nothing left to cancel — already at a terminal state.
+            return ResponseEntity.status(HttpStatus.CONFLICT).build()
+        }
+
+        val cancelled = matchingEngineService.cancel(id, userId) ?: return ResponseEntity.notFound().build()
+        return ResponseEntity.ok(
+            OrderResponse(
+                id = cancelled.id,
+                side = cancelled.side,
+                type = cancelled.type,
+                price = cancelled.price,
+                quantity = cancelled.quantity,
+                filledQuantity = cancelled.filledQuantity,
+                status = cancelled.status,
+                currencyPair = cancelled.currencyPair
+            )
+        )
     }
 
     @GetMapping

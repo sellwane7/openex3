@@ -1,5 +1,3 @@
-import { useOrderBookSocket } from "../hooks/useOrderBookSocket";
-
 /**
  * Live order book, stacked exchange-style:
  *   - Asks (sell side, red) on top, highest price at the very top,
@@ -8,12 +6,11 @@ import { useOrderBookSocket } from "../hooks/useOrderBookSocket";
  *   - Bids (buy side, green) below, best/highest bid just under the
  *     spread, lowest bid at the bottom.
  *
- * Fed entirely by the /topic/orderbook STOMP feed — no polling, no manual
- * refresh. Re-renders whenever the backend broadcasts a new snapshot.
+ * Bids/asks/connected are passed down from the page, which owns the one
+ * STOMP connection to /topic/orderbook — that way this panel and the
+ * depth chart share a single socket instead of each opening their own.
  */
-export default function OrderBook({ currencyPair }) {
-  const { bids, asks, connected } = useOrderBookSocket(currencyPair);
-
+export default function OrderBook({ currencyPair, bids, asks, connected }) {
   // Display order: best ask nearest the spread (i.e. lowest ask price at
   // the bottom of the asks block), so reverse the ascending-price list
   // the backend sends.
@@ -27,7 +24,8 @@ export default function OrderBook({ currencyPair }) {
       <div className="order-book-header">
         <h2>Order Book · {currencyPair}</h2>
         <span className={`ws-status ${connected ? "ws-connected" : "ws-disconnected"}`}>
-          {connected ? "● live" : "○ connecting..."}
+          <span className="ws-dot" aria-hidden="true"></span>
+          {connected ? "live" : "connecting..."}
         </span>
       </div>
 

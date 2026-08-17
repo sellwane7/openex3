@@ -2,6 +2,7 @@
 import { useNavigate, Link } from "react-router-dom";
 import { apiFetch } from "../api/client";
 import { useAuthStore } from "../store/authStore";
+import AuthLayout from "../components/AuthLayout.jsx";
 
 export default function Login() {
   const [email, setEmail] = useState("");
@@ -35,28 +36,25 @@ export default function Login() {
   }
 
   return (
-    <div className="page">
-      <h1>Login</h1>
-      <p className="subtitle">Sign in to your OpenEx account.</p>
-      <div className="panel">
-        <form onSubmit={handleSubmit} className="auth-form">
-          <label>
-            Email
-            <input type="email" value={email} onChange={(e) => setEmail(e.target.value)} required />
-          </label>
-          <label>
-            Password
-            <input type="password" value={password} onChange={(e) => setPassword(e.target.value)} required />
-          </label>
-          {error && <p className="form-error">{error}</p>}
-          <button type="submit" disabled={loading}>
-            {loading ? "Signing in..." : "Sign in"}
-          </button>
-        </form>
-        <p className="auth-switch">
-          No account? <Link to="/register">Register</Link>
-        </p>
-      </div>
-    </div>
+    <AuthLayout
+      title="Welcome back"
+      subtitle="Sign in to your OpenEx account."
+      footer={<>No account? <Link to="/register">Register</Link></>}
+    >
+      <form onSubmit={handleSubmit} className="auth-form">
+        <label>
+          Email
+          <input type="email" value={email} onChange={(e) => setEmail(e.target.value)} placeholder="you@example.com" required />
+        </label>
+        <label>
+          Password
+          <input type="password" value={password} onChange={(e) => setPassword(e.target.value)} placeholder="Your password" required />
+        </label>
+        {error && <p className="form-error">{error}</p>}
+        <button type="submit" className="auth-submit" disabled={loading}>
+          {loading ? "Signing in..." : "Sign in"}
+        </button>
+      </form>
+    </AuthLayout>
   );
 }

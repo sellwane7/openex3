@@ -6,8 +6,11 @@ import Trading from "./pages/Trading.jsx";
 import Login from "./pages/Login.jsx";
 import Register from "./pages/Register.jsx";
 import ChatWidget from "./components/ChatWidget.jsx";
+import { useAuthStore } from "./store/authStore";
 
 export default function App() {
+  const isAuthenticated = useAuthStore((s) => s.isAuthenticated);
+
   return (
     <div className="app-shell">
       <NavBar />
@@ -17,7 +20,7 @@ export default function App() {
         <Route path="/login" element={<Login />} />
         <Route path="/register" element={<Register />} />
       </Routes>
-      <ChatWidget />
+      {isAuthenticated && <ChatWidget />}
     </div>
   );
 }

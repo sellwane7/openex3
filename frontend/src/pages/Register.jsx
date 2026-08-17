@@ -2,6 +2,7 @@
 import { useNavigate, Link } from "react-router-dom";
 import { apiFetch } from "../api/client";
 import { useAuthStore } from "../store/authStore";
+import AuthLayout from "../components/AuthLayout.jsx";
 
 export default function Register() {
   const [email, setEmail] = useState("");
@@ -35,28 +36,25 @@ export default function Register() {
   }
 
   return (
-    <div className="page">
-      <h1>Register</h1>
-      <p className="subtitle">Create your OpenEx account.</p>
-      <div className="panel">
-        <form onSubmit={handleSubmit} className="auth-form">
-          <label>
-            Email
-            <input type="email" value={email} onChange={(e) => setEmail(e.target.value)} required />
-          </label>
-          <label>
-            Password
-            <input type="password" value={password} onChange={(e) => setPassword(e.target.value)} required minLength={8} />
-          </label>
-          {error && <p className="form-error">{error}</p>}
-          <button type="submit" disabled={loading}>
-            {loading ? "Creating account..." : "Create account"}
-          </button>
-        </form>
-        <p className="auth-switch">
-          Already have an account? <Link to="/login">Login</Link>
-        </p>
-      </div>
-    </div>
+    <AuthLayout
+      title="Create your account"
+      subtitle="Join OpenEx and start trading with simulated funds."
+      footer={<>Already have an account? <Link to="/login">Login</Link></>}
+    >
+      <form onSubmit={handleSubmit} className="auth-form">
+        <label>
+          Email
+          <input type="email" value={email} onChange={(e) => setEmail(e.target.value)} placeholder="you@example.com" required />
+        </label>
+        <label>
+          Password
+          <input type="password" value={password} onChange={(e) => setPassword(e.target.value)} placeholder="At least 8 characters" required minLength={8} />
+        </label>
+        {error && <p className="form-error">{error}</p>}
+        <button type="submit" className="auth-submit" disabled={loading}>
+          {loading ? "Creating account..." : "Create account"}
+        </button>
+      </form>
+    </AuthLayout>
   );
 }

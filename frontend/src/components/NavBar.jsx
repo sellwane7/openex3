@@ -46,7 +46,7 @@ export default function NavBar() {
     <nav className="navbar">
       <span className="brand">OpenEx 3.0</span>
 
-      {price !== null && (
+      {isAuthenticated && price !== null && (
         <span className={`nav-ticker nav-ticker--${direction ?? "flat"}`}>
           <span className="nav-ticker__pair">BTC-USD</span>
           <span className="nav-ticker__price">
@@ -56,8 +56,12 @@ export default function NavBar() {
       )}
 
       <div className="nav-links">
-        <NavLink to="/" end className={({ isActive }) => (isActive ? "active" : "")}>Dashboard</NavLink>
-        <NavLink to="/trading" className={({ isActive }) => (isActive ? "active" : "")}>Trading</NavLink>
+        {isAuthenticated && (
+          <>
+            <NavLink to="/" end className={({ isActive }) => (isActive ? "active" : "")}>Dashboard</NavLink>
+            <NavLink to="/trading" className={({ isActive }) => (isActive ? "active" : "")}>Trading</NavLink>
+          </>
+        )}
         {!isAuthenticated && (
           <>
             <NavLink to="/login" className={({ isActive }) => (isActive ? "active" : "")}>Login</NavLink>

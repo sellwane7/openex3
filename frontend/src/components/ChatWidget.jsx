@@ -5,7 +5,8 @@ import { useAuthStore } from "../store/authStore";
 export default function ChatWidget() {
   const [isOpen, setIsOpen] = useState(false);
   const [messages, setMessages] = useState([
-    { role: "assistant", text: "Hi, I'm Nova — ask me about your balance, orders, or trading concepts." },
+    // line 8
+{ role: "assistant", text: "Hi, I'm Candle — ask me about your balance, orders, or trading concepts." },
   ]);
   const [input, setInput] = useState("");
   const [isSending, setIsSending] = useState(false);
@@ -52,7 +53,7 @@ export default function ChatWidget() {
       {isOpen && (
         <div className="chat-widget__panel">
           <div className="chat-widget__header">
-            <span>Nova · AI Trading Assistant</span>
+            <span>Candle · AI Trading Assistant</span>
             <button
               className="chat-widget__close"
               onClick={() => setIsOpen(false)}
@@ -73,7 +74,7 @@ export default function ChatWidget() {
             ))}
             {isSending && (
               <div className="chat-widget__message chat-widget__message--assistant chat-widget__message--typing">
-                Nova is thinking…
+                Candle is thinking…
               </div>
             )}
           </div>

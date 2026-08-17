@@ -166,6 +166,34 @@ class MatchingEngineService(
             }
     }
 
+    /**
+     * Cancels a resting order: pulls it off the in-memory book (if it's
+     * still there — a MARKET order or a fully-filled LIMIT order never
+     * rests, so this is a no-op for those), marks it CANCELLED, and
+     * broadcasts the updated book so every client sees the level shrink.
+     * Returns null if the order doesn't exist or belongs to someone else;
+     * returns the order unchanged if it's already FILLED/CANCELLED.
+     */
+    @Transactional
+    fun cancel(orderId: java.util.UUID, userId: java.util.UUID): Order? {
+        val order = orderRepository.findById(orderId).orElse(null) ?: return null
+        if (order.userId != userId) return null
+        if (order.status == OrderStatus.FILLED || order.status == OrderStatus.CANCELLED) return order
+
+        val lock = lockFor(order.currencyPair)
+        lock.lock()
+        try {
+            val book = if (order.side == OrderSide.BUY) bidBook(order.currencyPair) else askBook(order.currencyPair)
+            book.removeIf { it.order.id == order.id }
+            order.status = OrderStatus.CANCELLED
+            orderRepository.save(order)
+            broadcastSnapshot(order.currencyPair)
+        } finally {
+            lock.unlock()
+        }
+        return order
+    }
+
     private fun statusFor(order: Order): OrderStatus = when {
         order.filledQuantity >= order.quantity -> OrderStatus.FILLED
         order.filledQuantity > BigDecimal.ZERO -> OrderStatus.PARTIALLY_FILLED

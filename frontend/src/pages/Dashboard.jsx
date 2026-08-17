@@ -1,10 +1,10 @@
-﻿import { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { apiFetch } from "../api/client";
 import { fetchMarketTicks } from "../api/marketClient";
 
 const CURRENCY_META = {
   USD: { label: "US Dollar", symbol: "$", accent: "#3ee08a" },
-  BTC: { label: "Bitcoin", symbol: "₿", accent: "#e0a53e" },
+  BTC: { label: "Bitcoin", symbol: "\u20BF", accent: "#e0a53e" },
 };
 
 function formatMoney(value) {
@@ -66,7 +66,7 @@ export default function Dashboard() {
 
       {error && <p className="form-error">{error}</p>}
 
-      {!error && !balances && <p className="placeholder-note">Loading balances…</p>}
+      {!error && !balances && <p className="placeholder-note">Loading balances...</p>}
 
       {balances && (
         <>
@@ -77,7 +77,7 @@ export default function Dashboard() {
             </span>
             {btcPrice && (
               <span className="portfolio-hero__note">
-                BTC-USD ≈ ${formatMoney(btcPrice)} (live from market simulator)
+                BTC-USD ~ ${formatMoney(btcPrice)} (live from market simulator)
               </span>
             )}
           </div>
@@ -97,14 +97,14 @@ export default function Dashboard() {
                   <div className="balance-card__amount">{formatMoney(b.balance)}</div>
                   <div className="balance-card__meta">
                     {meta.label}
-                    {usdEquivalent !== null && ` · ≈ $${formatMoney(usdEquivalent)}`}
+                    {usdEquivalent !== null && ` - ~ $${formatMoney(usdEquivalent)}`}
                   </div>
                 </div>
               );
             })}
-          </div>
-        </>
+          </div>        </>
       )}
     </div>
   );
 }
+
