@@ -1,4 +1,4 @@
-﻿import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { apiFetch } from "../api/client";
 import OrderForm from "../components/OrderForm";
 import OrderBook from "../components/OrderBook";
@@ -15,10 +15,8 @@ export default function Trading() {
   const [orders, setOrders] = useState([]);
   const [ordersError, setOrdersError] = useState("");
   const [cancellingId, setCancellingId] = useState(null);
+  const [walletRefreshKey, setWalletRefreshKey] = useState(0);
 
-  // Owned once here and passed down, so the order book panel and the
-  // depth chart share one socket / one poll loop instead of each
-  // opening their own.
   const { bids, asks, connected } = useOrderBookSocket(CURRENCY_PAIR);
   const { ticks, error: ticksError } = useMarketTicks(CURRENCY_PAIR, 100);
 
@@ -40,6 +38,14 @@ export default function Trading() {
     loadOrders();
   }, [loadOrders]);
 
+  // Placing an order can fill it immediately against the book, which
+  // moves real money through the ledger — so every time an order is
+  // placed OR cancelled, re-fetch both the order list and the wallet.
+  async function handleOrderPlaced() {
+    await loadOrders();
+    setWalletRefreshKey((k) => k + 1);
+  }
+
   async function handleCancel(orderId) {
     setCancellingId(orderId);
     setOrdersError("");
@@ -50,6 +56,7 @@ export default function Trading() {
         return;
       }
       await loadOrders();
+      setWalletRefreshKey((k) => k + 1);
     } catch {
       setOrdersError("Could not reach the server.");
     } finally {
@@ -127,8 +134,8 @@ export default function Trading() {
         </div>
 
         <div className="terminal-sidebar">
-          <OrderForm currencyPair={CURRENCY_PAIR} onOrderPlaced={loadOrders} />
-          <WalletPanel />
+          <OrderForm currencyPair={CURRENCY_PAIR} onOrderPlaced={handleOrderPlaced} />
+          <WalletPanel refreshKey={walletRefreshKey} />
           <OrderBook currencyPair={CURRENCY_PAIR} bids={bids} asks={asks} connected={connected} />
         </div>
       </div>
