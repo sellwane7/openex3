@@ -1,4 +1,4 @@
-"""
+﻿"""
 AI trading assistant powered by a local Ollama model via LangChain,
 now upgraded to a proper agent that can call tools — starting with
 looking up the user's real wallet balance from the Kotlin backend.
