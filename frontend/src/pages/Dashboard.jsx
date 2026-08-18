@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+﻿import { useEffect, useState } from "react";
 import { apiFetch } from "../api/client";
 import { fetchMarketTicks } from "../api/marketClient";
 
@@ -15,23 +15,26 @@ export default function Dashboard() {
   const [balances, setBalances] = useState(null);
   const [btcPrice, setBtcPrice] = useState(null);
   const [error, setError] = useState("");
+  const [depositing, setDepositing] = useState(false);
+  const [depositMessage, setDepositMessage] = useState("");
+
+  async function loadBalances() {
+    try {
+      const res = await apiFetch("/api/wallets");
+      if (!res.ok) {
+        setError("Could not load balances.");
+        return;
+      }
+      const data = await res.json();
+      setBalances(data);
+      setError("");
+    } catch {
+      setError("Could not reach the server.");
+    }
+  }
 
   useEffect(() => {
     let cancelled = false;
-
-    async function loadBalances() {
-      try {
-        const res = await apiFetch("/api/wallets");
-        if (!res.ok) {
-          if (!cancelled) setError("Could not load balances.");
-          return;
-        }
-        const data = await res.json();
-        if (!cancelled) setBalances(data);
-      } catch {
-        if (!cancelled) setError("Could not reach the server.");
-      }
-    }
 
     async function loadPrice() {
       try {
@@ -54,10 +57,38 @@ export default function Dashboard() {
     };
   }, []);
 
+  async function handleGetTestFunds() {
+    setDepositing(true);
+    setDepositMessage("");
+    try {
+      const usdRes = await apiFetch("/api/wallets/deposit", {
+        method: "POST",
+        body: JSON.stringify({ currency: "USD", amount: 5000 }),
+      });
+      const btcRes = await apiFetch("/api/wallets/deposit", {
+        method: "POST",
+        body: JSON.stringify({ currency: "BTC", amount: 1 }),
+      });
+
+      if (!usdRes.ok || !btcRes.ok) {
+        setDepositMessage("Could not add test funds. Please try again.");
+        return;
+      }
+
+      setDepositMessage("Added $5,000 and 1 BTC to your wallet.");
+      await loadBalances();
+    } catch {
+      setDepositMessage("Could not reach the server.");
+    } finally {
+      setDepositing(false);
+    }
+  }
+
   const usdBalance = balances?.find((b) => b.currency === "USD")?.balance ?? 0;
   const btcBalance = balances?.find((b) => b.currency === "BTC")?.balance ?? 0;
   const btcValueInUsd = btcPrice ? btcBalance * btcPrice : null;
   const portfolioTotal = btcValueInUsd !== null ? usdBalance + btcValueInUsd : null;
+  const isEmpty = balances && usdBalance === 0 && btcBalance === 0;
 
   return (
     <div className="page">
@@ -82,6 +113,22 @@ export default function Dashboard() {
             )}
           </div>
 
+          {isEmpty && (
+            <div className="panel" style={{ marginBottom: "1.5rem" }}>
+              <p className="placeholder-note" style={{ marginBottom: "0.75rem" }}>
+                Your wallet is empty. Get simulated funds to start trading.
+              </p>
+              <button
+                className="submit-order buy"
+                onClick={handleGetTestFunds}
+                disabled={depositing}
+              >
+                {depositing ? "Adding funds..." : "Get Test Funds ($5,000 + 1 BTC)"}
+              </button>
+              {depositMessage && <p className="placeholder-note" style={{ marginTop: "0.5rem" }}>{depositMessage}</p>}
+            </div>
+          )}
+
           <div className="balance-cards">
             {balances.map((b) => {
               const meta = CURRENCY_META[b.currency] ?? { label: b.currency, symbol: "", accent: "#8592a3" };
@@ -102,9 +149,9 @@ export default function Dashboard() {
                 </div>
               );
             })}
-          </div>        </>
+          </div>
+        </>
       )}
     </div>
   );
 }
-
