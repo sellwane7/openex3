@@ -27,7 +27,7 @@ A lightweight, simulated crypto exchange built as a 3-week capstone project, usi
 - **Backend (Kotlin/Spring Boot)** - double-entry ledger, JWT auth, idempotent orders, in-memory matching engine, WebSocket order book broadcasting.
 - **Frontend (React/Vite)** - trading terminal UI: auth, order forms, live order book, market chart, floating AI chat widget.
 - **Python AI Service (Flask/LangChain)** - simulated market data (Pandas/NumPy), and a ReAct agent that can call a tool to fetch a user's real wallet balance from the Kotlin backend.
-- **Ollama** - runs the local LLM (`llama3.2`) that powers the AI assistant. Runs natively on the host machine rather than in a container, since Ollama's own GPU/CPU acceleration works best with direct hardware access; the Python service reaches it via `host.docker.internal`.
+- **Ollama** - runs the local LLM (`llama3.2`) that powers the AI assistant, fully containerized alongside the rest of the stack with its own persistent volume for model storage.
 
 ## Prerequisites
 
@@ -37,11 +37,11 @@ A lightweight, simulated crypto exchange built as a 3-week capstone project, usi
 
 ## One-time setup
 
-1. **Install and start Ollama, then pull the model:**
+1. **Start the stack, then pull the model into the running Ollama container (first time only):**
 ```bash
-   ollama pull llama3.2
+docker compose up -d --build
+docker exec -it openex-ollama ollama pull llama3.2
 ```
-   Ollama runs as a background service once installed - no need to manually start it each time.
 
 2. **Clone the repo and enter the project root:**
 ```bash
@@ -53,7 +53,7 @@ A lightweight, simulated crypto exchange built as a 3-week capstone project, usi
 The backend, database, cache, and AI service all start with a single command:
 
 ```bash
-docker-compose up -d
+docker compose up -d --build
 ```
 
 This will:
@@ -71,26 +71,18 @@ docker ps
 
 ### Running the frontend
 
-The React frontend isn't containerized (kept as a native dev-server workflow for fast iteration). Run it separately:
-
-```bash
-cd frontend
-npm install
-npm run dev
-```
-
-Then open `http://localhost:5173`.
+The frontend is fully containerized and starts automatically with the rest of the stack - no separate steps needed. It's served by nginx on port 80, which also reverse-proxies API, WebSocket, and AI service requests so the browser only ever talks to `http://localhost`.
 
 ## Service ports
 
 | Service | Port | Purpose |
 |---|---|---|
-| Frontend (Vite) | 5173 | React trading terminal |
+| Frontend (nginx) | 80 | React trading terminal |
 | Backend (Kotlin) | 8080 | REST API, JWT auth, WebSocket order book |
 | Python AI Service | 5000 | Market data API, AI chat |
 | Postgres | 5432 | Primary database |
 | Redis | 6379 | Idempotency key cache |
-| Ollama | 11434 | Local LLM inference (host) |
+| Ollama | 11434 | Local LLM inference (container, internal only) |
 
 ## Day-by-day map of this repo
 
@@ -177,5 +169,4 @@ PR titles matching the brief's requirements:
 
 ## Known design decisions
 
-- **Ollama runs natively, not in a container.** The brief describes an "Ollama container running locally"; here Ollama is installed directly on the host instead. This was a deliberate trade-off for reliable local performance during development. The Python service is fully configured to reach it via `host.docker.internal`, so this could be swapped for a containerized `ollama/ollama` service with minimal changes if required.
-- **The React frontend runs via `npm run dev`, not Docker.** Kept as a native dev-server workflow for fast hot-reloading during active development.
+- **Ollama and the frontend are both fully containerized**, started with everything else via a single `docker compose up -d --build`. The model must be pulled once into the running container (see setup above) since it isn't baked into the image.
