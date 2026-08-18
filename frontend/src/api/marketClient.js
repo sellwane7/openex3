@@ -1,4 +1,4 @@
-const MARKET_API_BASE = "http://localhost:5000";
+﻿const MARKET_API_BASE = import.meta.env.VITE_MARKET_API_BASE_URL || "http://localhost:5000";
 
 export async function fetchMarketTicks(pair = "BTC-USD", ticks = 100) {
   const res = await fetch(

@@ -22,8 +22,13 @@ class SecurityConfig(
 
     @Bean
     fun corsConfigurationSource(): CorsConfigurationSource {
+        val frontendOrigin = System.getenv("FRONTEND_ORIGIN")
+        val origins = mutableListOf("http://localhost:*")
+        if (!frontendOrigin.isNullOrBlank()) {
+            origins.add(frontendOrigin)
+        }
         val config = CorsConfiguration().apply {
-            allowedOriginPatterns = listOf("http://localhost:*")
+            allowedOriginPatterns = origins
             allowedMethods = listOf("GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS")
             allowedHeaders = listOf("*")
             allowCredentials = true

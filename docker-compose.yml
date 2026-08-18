@@ -1,4 +1,4 @@
-services:
+﻿services:
   postgres:
     image: postgres:16-alpine
     container_name: openex-postgres
@@ -6,9 +6,7 @@ services:
     environment:
       POSTGRES_DB: openex
       POSTGRES_USER: openex
-      POSTGRES_PASSWORD: openex_password
-    ports:
-      - "5432:5432"
+      POSTGRES_PASSWORD: ${DB_PASSWORD:-openex_password}
     volumes:
       - openex_pg_data:/var/lib/postgresql/data
     healthcheck:
@@ -21,8 +19,6 @@ services:
     image: redis:7-alpine
     container_name: openex-redis
     restart: unless-stopped
-    ports:
-      - "6379:6379"
     healthcheck:
       test: ["CMD", "redis-cli", "ping"]
       interval: 5s
@@ -33,10 +29,8 @@ services:
     image: ollama/ollama:latest
     container_name: openex-ollama
     restart: unless-stopped
-    ports:
-      - "11434:11434"
     volumes:
-      - ${USERPROFILE}/.ollama:/root/.ollama
+      - ollama_data:/root/.ollama
     healthcheck:
       test: ["CMD-SHELL", "ollama list || exit 1"]
       interval: 10s
@@ -55,10 +49,11 @@ services:
       DB_PORT: 5432
       DB_NAME: openex
       DB_USER: openex
-      DB_PASSWORD: openex_password
+      DB_PASSWORD: ${DB_PASSWORD:-openex_password}
       REDIS_HOST: redis
       REDIS_PORT: 6379
-      JWT_SECRET: MEZvrIOD69tzuCPbjGceplhJoWB1y5823RX7QwiSVTxsLFgf
+      JWT_SECRET: ${JWT_SECRET}
+      FRONTEND_ORIGIN: ${FRONTEND_ORIGIN:-}
     ports:
       - "8080:8080"
     healthcheck:
@@ -82,8 +77,6 @@ services:
     environment:
       KOTLIN_API_BASE_URL: http://backend:8080
       OLLAMA_BASE_URL: http://ollama:11434
-    ports:
-      - "5000:5000"
     healthcheck:
       test: ["CMD-SHELL", "python -c \"import urllib.request; urllib.request.urlopen('http://localhost:5000/api/health')\" || exit 1"]
       interval: 10s
@@ -95,8 +88,22 @@ services:
         condition: service_healthy
       ollama:
         condition: service_healthy
-    extra_hosts:
-      - "host.docker.internal:host-gateway"
+
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+      args:
+        VITE_API_BASE_URL: ""
+        VITE_MARKET_API_BASE_URL: "/ai"
+    container_name: openex-frontend
+    restart: unless-stopped
+    ports:
+      - "80:80"
+    depends_on:
+      - backend
+      - python-service
 
 volumes:
   openex_pg_data:
+  ollama_data:

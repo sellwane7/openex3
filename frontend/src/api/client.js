@@ -1,13 +1,17 @@
-import { useAuthStore } from "../store/authStore";
+﻿import { useAuthStore } from "../store/authStore";
 
 // All backend calls go through here. Vite proxies /api to the Spring Boot
 // backend in dev (see vite.config.js note in README) — in production, point
 // this at your deployed backend URL via an env var instead.
-const API_BASE = import.meta.env.VITE_API_BASE_URL || "http://localhost:8080";
+const API_BASE = import.meta.env.VITE_API_BASE_URL ?? "http://localhost:8080";
 
 // Same host as API_BASE, just with the http(s) scheme swapped for ws(s) —
 // used by the Day 10 STOMP client to reach the backend's /ws endpoint.
-export const WS_BASE = API_BASE.replace(/^http/, "ws");
+// Falls back to the current page's origin when API_BASE is relative/empty
+// (same-origin deployment behind a reverse proxy).
+const resolvedBase =
+  API_BASE || (typeof window !== "undefined" ? window.location.origin : "");
+export const WS_BASE = resolvedBase.replace(/^http/, "ws");
 
 export async function apiFetch(path, options = {}) {
   const token = useAuthStore.getState().token;
