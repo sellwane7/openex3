@@ -18,7 +18,6 @@ services:
     image:
       url: docker.io/ollama/ollama:latest
     plan: free
-    startCommand: "sh -c 'ollama serve & sleep 5 && ollama pull llama3.2:1b; wait'"
 
   - type: web
     name: openex-backend
@@ -94,3 +93,4 @@ services:
         sync: false
       - key: GROQ_MODEL
         value: openai/gpt-oss-20b
+
