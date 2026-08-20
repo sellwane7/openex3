@@ -1,0 +1,96 @@
+﻿databases:
+  - name: openex-postgres
+    databaseName: openex
+    user: openex
+    plan: free
+
+services:
+  - type: keyvalue
+    name: openex-redis
+    plan: free
+    ipAllowList:
+      - source: 0.0.0.0/0
+        description: allow all (internal Render services only reach this over the private network; tighten later if you add a public dependency)
+
+  - type: web
+    name: openex-ollama
+    runtime: image
+    image:
+      url: docker.io/ollama/ollama:latest
+    plan: free
+    startCommand: "sh -c 'ollama serve & sleep 5 && ollama pull llama3.2:1b; wait'"
+
+  - type: web
+    name: openex-backend
+    runtime: docker
+    dockerfilePath: ./backend/Dockerfile
+    dockerContext: ./backend
+    plan: free
+    healthCheckPath: /api/health
+    envVars:
+      - key: DB_HOST
+        fromDatabase:
+          name: openex-postgres
+          property: host
+      - key: DB_PORT
+        fromDatabase:
+          name: openex-postgres
+          property: port
+      - key: DB_NAME
+        fromDatabase:
+          name: openex-postgres
+          property: database
+      - key: DB_USER
+        fromDatabase:
+          name: openex-postgres
+          property: user
+      - key: DB_PASSWORD
+        fromDatabase:
+          name: openex-postgres
+          property: password
+      - key: DB_SSL_PARAMS
+        value: "?sslmode=require"
+      - key: REDIS_URL
+        fromService:
+          type: keyvalue
+          name: openex-redis
+          property: connectionString
+      - key: JWT_SECRET
+        generateValue: true
+      - key: FRONTEND_ORIGIN
+        sync: false
+
+  - type: web
+    name: openex-python-service
+    runtime: docker
+    dockerfilePath: ./python-service/Dockerfile
+    dockerContext: ./python-service
+    plan: free
+    healthCheckPath: /api/health
+    envVars:
+      - key: KOTLIN_API_HOST
+        fromService:
+          type: web
+          name: openex-backend
+          property: host
+      - key: KOTLIN_API_PORT
+        fromService:
+          type: web
+          name: openex-backend
+          property: port
+      - key: OLLAMA_HOST
+        fromService:
+          type: web
+          name: openex-ollama
+          property: host
+      - key: OLLAMA_PORT
+        fromService:
+          type: web
+          name: openex-ollama
+          property: port
+      - key: OLLAMA_MODEL
+        value: llama3.2:1b
+      - key: GROQ_API_KEY
+        sync: false
+      - key: GROQ_MODEL
+        value: openai/gpt-oss-20b
