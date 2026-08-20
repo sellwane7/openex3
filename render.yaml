@@ -12,7 +12,7 @@ services:
       - source: 0.0.0.0/0
         description: allow all (internal Render services only reach this over the private network; tighten later if you add a public dependency)
 
-    - type: web
+  - type: web
     name: openex-ollama
     runtime: docker
     dockerfilePath: ./ollama/Dockerfile
