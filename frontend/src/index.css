@@ -7,6 +7,7 @@
   --accent: #d69a3f;
   --accent-dim: #a97a2f;
   --danger: #d1574f;
+  --success: #3ee08a;
   --font-mono: "SF Mono", "Consolas", "Menlo", monospace;
   --font-sans: "Inter", "Helvetica Neue", Arial, sans-serif;
 }
@@ -83,6 +84,36 @@ a { color: inherit; }
   color: var(--danger);
 }
 
+.nav-date {
+  font-family: var(--font-mono);
+  font-size: 0.8rem;
+  color: var(--muted);
+  white-space: nowrap;
+}
+
+.nav-user {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  color: var(--muted);
+  font-size: 0.85rem;
+  padding: 0.3rem 0.6rem;
+  border: 1px solid var(--panel-border);
+  border-radius: 999px;
+}
+
+.nav-user__icon {
+  color: var(--accent);
+  flex-shrink: 0;
+}
+
+.nav-user__email {
+  max-width: 160px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
 /* ---- Page shell ---- */
 .page {
   flex: 1;
@@ -130,6 +161,19 @@ a { color: inherit; }
 .form-success {
   color: var(--accent);
   font-size: 0.85rem;
+}
+
+.error-boundary {
+  max-width: 520px;
+  margin: 2rem auto;
+}
+
+.error-boundary h2 {
+  margin-top: 0;
+}
+
+.error-boundary button {
+  margin-top: 1rem;
 }
 
 /* ---- Trading page layout ---- */
@@ -274,11 +318,11 @@ a { color: inherit; }
 }
 
 .ws-connected {
-  color: var(--accent);
+  color: var(--success);
 }
 
 .ws-connected .ws-dot {
-  box-shadow: 0 0 6px var(--accent);
+  box-shadow: 0 0 6px var(--success);
   animation: ws-pulse 1.6s ease-in-out infinite;
 }
 

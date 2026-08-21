@@ -26,7 +26,7 @@ export default function Login() {
         return;
       }
       const data = await res.json();
-      login(data.token);
+      login(data.token, data.email);
       navigate("/");
     } catch {
       setError("Could not reach the server. Is the backend running?");

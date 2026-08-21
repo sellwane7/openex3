@@ -31,7 +31,10 @@ export function useOrderBookSocket(currencyPair) {
         const res = await apiFetch(`/api/orderbook/${currencyPair}`);
         if (res.ok && !cancelled) {
           const snapshot = await res.json();
-          setBook({ bids: snapshot.bids, asks: snapshot.asks });
+          setBook({
+            bids: Array.isArray(snapshot?.bids) ? snapshot.bids : [],
+            asks: Array.isArray(snapshot?.asks) ? snapshot.asks : [],
+          });
         }
       } catch {
         // Non-fatal — the live WebSocket feed will still populate the
@@ -46,9 +49,17 @@ export function useOrderBookSocket(currencyPair) {
       onConnect: () => {
         setConnected(true);
         client.subscribe("/topic/orderbook", (message) => {
-          const snapshot = JSON.parse(message.body);
+          let snapshot;
+          try {
+            snapshot = JSON.parse(message.body);
+          } catch {
+            return; // malformed push — skip rather than crash the render
+          }
           if (snapshot.currencyPair === currencyPair) {
-            setBook({ bids: snapshot.bids, asks: snapshot.asks });
+            setBook({
+              bids: Array.isArray(snapshot.bids) ? snapshot.bids : [],
+              asks: Array.isArray(snapshot.asks) ? snapshot.asks : [],
+            });
           }
         });
       },

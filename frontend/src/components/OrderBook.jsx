@@ -11,12 +11,20 @@
  * depth chart share a single socket instead of each opening their own.
  */
 export default function OrderBook({ currencyPair, bids, asks, connected }) {
+  // Guard against bids/asks ever being null/undefined (e.g. a snapshot
+  // response that doesn't match the expected shape). Without this,
+  // [...asks] throws synchronously during render and — since there's no
+  // error boundary above this in older builds — silently blanks the
+  // entire app instead of just this panel.
+  const safeBids = Array.isArray(bids) ? bids : [];
+  const safeAsks = Array.isArray(asks) ? asks : [];
+
   // Display order: best ask nearest the spread (i.e. lowest ask price at
   // the bottom of the asks block), so reverse the ascending-price list
   // the backend sends.
-  const asksDisplay = [...asks].reverse();
-  const bestBid = bids[0]?.price;
-  const bestAsk = asks[0]?.price;
+  const asksDisplay = [...safeAsks].reverse();
+  const bestBid = safeBids[0]?.price;
+  const bestAsk = safeAsks[0]?.price;
   const spread = bestBid && bestAsk ? (bestAsk - bestBid).toFixed(2) : null;
 
   return (
@@ -49,8 +57,8 @@ export default function OrderBook({ currencyPair, bids, asks, connected }) {
       </div>
 
       <div className="order-book-side bids">
-        {bids.length === 0 && <p className="placeholder-note">No resting bids.</p>}
-        {bids.map((level) => (
+        {safeBids.length === 0 && <p className="placeholder-note">No resting bids.</p>}
+        {safeBids.map((level) => (
           <div className="order-book-row bid-row" key={`bid-${level.price}`}>
             <span className="row-price">{level.price}</span>
             <span className="row-qty">{level.quantity}</span>
