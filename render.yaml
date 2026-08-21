@@ -67,30 +67,26 @@ services:
     plan: free
     healthCheckPath: /api/health
     envVars:
+      # NOTE: fromService host/port gives the *private network* address,
+      # but Render's free web services can't receive private network
+      # traffic (only paid services/data stores can) — see
+      # https://render.com/docs/free. Since both services here are on the
+      # free tier, we build the backend's *public* onrender.com URL instead:
+      # the "host" property is the same subdomain slug Render uses for the
+      # public hostname, we just add the https:// scheme and .onrender.com.
       - key: KOTLIN_API_HOST
         fromService:
           type: web
           name: openex-backend
           property: host
-      - key: KOTLIN_API_PORT
-        fromService:
-          type: web
-          name: openex-backend
-          property: port
-      - key: OLLAMA_HOST
+      - key: OLLAMA_API_HOST
         fromService:
           type: web
           name: openex-ollama
           property: host
-      - key: OLLAMA_PORT
-        fromService:
-          type: web
-          name: openex-ollama
-          property: port
       - key: OLLAMA_MODEL
         value: llama3.2:1b
       - key: GROQ_API_KEY
         sync: false
       - key: GROQ_MODEL
         value: openai/gpt-oss-20b
-

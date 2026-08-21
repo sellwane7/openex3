@@ -22,6 +22,6 @@ EXPOSE 5000
 # OLLAMA_BASE_URL the app actually reads; when absent, OLLAMA_BASE_URL is
 # left as whatever docker-compose/the environment already set.
 CMD sh -c '\
-  if [ -n "$OLLAMA_HOST" ]; then export OLLAMA_BASE_URL="http://${OLLAMA_HOST}:${OLLAMA_PORT:-11434}"; fi; \
-  if [ -n "$KOTLIN_API_HOST" ]; then export KOTLIN_API_BASE_URL="http://${KOTLIN_API_HOST}:${KOTLIN_API_PORT:-8080}"; fi; \
+  if [ -n "$OLLAMA_API_HOST" ]; then export OLLAMA_BASE_URL="https://${OLLAMA_API_HOST}.onrender.com"; fi; \
+  if [ -n "$KOTLIN_API_HOST" ]; then export KOTLIN_API_BASE_URL="https://${KOTLIN_API_HOST}.onrender.com"; fi; \
   exec gunicorn --bind 0.0.0.0:${PORT:-5000} --workers 2 --timeout 180 run:app'
