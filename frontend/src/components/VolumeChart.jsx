@@ -4,12 +4,13 @@ import {
   CategoryScale,
   LinearScale,
   BarElement,
+  BarController,
   Tooltip,
 } from "chart.js";
 import { Bar } from "react-chartjs-2";
 import { fetchMarketTicks } from "../api/marketClient";
 
-ChartJS.register(CategoryScale, LinearScale, BarElement, Tooltip);
+ChartJS.register(CategoryScale, LinearScale, BarElement, BarController, Tooltip);
 
 const POLL_INTERVAL_MS = 5000;
 
