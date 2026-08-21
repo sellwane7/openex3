@@ -3,7 +3,6 @@ import { apiFetch } from "../api/client";
 import OrderForm from "../components/OrderForm";
 import OrderBook from "../components/OrderBook";
 import MarketChart from "../components/MarketChart";
-import DepthChart from "../components/DepthChart";
 import MarketStats from "../components/MarketStats";
 import WalletPanel from "../components/WalletPanel";
 import { useOrderBookSocket } from "../hooks/useOrderBookSocket";
@@ -76,11 +75,6 @@ export default function Trading() {
           <div className="panel market-chart-panel">
             <h2>Market Chart · {CURRENCY_PAIR}</h2>
             <MarketChart pair={CURRENCY_PAIR} ticks={ticks} error={ticksError} />
-          </div>
-
-          <div className="panel market-chart-panel">
-            <h2>Order Book Depth · {CURRENCY_PAIR}</h2>
-            <DepthChart bids={bids} asks={asks} />
           </div>
 
           <div className="panel my-orders">

@@ -15,6 +15,8 @@ export default function Dashboard() {
   const [balances, setBalances] = useState(null);
   const [btcPrice, setBtcPrice] = useState(null);
   const [error, setError] = useState("");
+  const [currency, setCurrency] = useState("USD");
+  const [amount, setAmount] = useState("");
   const [depositing, setDepositing] = useState(false);
   const [depositMessage, setDepositMessage] = useState("");
 
@@ -57,25 +59,26 @@ export default function Dashboard() {
     };
   }, []);
 
-  async function handleGetTestFunds() {
+  async function handleAddFunds(e) {
+    e.preventDefault();
+    const parsed = Number(amount);
+    if (!parsed || parsed <= 0) {
+      setDepositMessage("Enter an amount greater than 0.");
+      return;
+    }
     setDepositing(true);
     setDepositMessage("");
     try {
-      const usdRes = await apiFetch("/api/wallets/deposit", {
+      const res = await apiFetch("/api/wallets/deposit", {
         method: "POST",
-        body: JSON.stringify({ currency: "USD", amount: 5000 }),
+        body: JSON.stringify({ currency, amount: parsed }),
       });
-      const btcRes = await apiFetch("/api/wallets/deposit", {
-        method: "POST",
-        body: JSON.stringify({ currency: "BTC", amount: 1 }),
-      });
-
-      if (!usdRes.ok || !btcRes.ok) {
-        setDepositMessage("Could not add test funds. Please try again.");
+      if (!res.ok) {
+        setDepositMessage("Could not add funds. Please try again.");
         return;
       }
-
-      setDepositMessage("Added $5,000 and 1 BTC to your wallet.");
+      setDepositMessage(`Added ${amount} ${currency}.`);
+      setAmount("");
       await loadBalances();
     } catch {
       setDepositMessage("Could not reach the server.");
@@ -88,7 +91,6 @@ export default function Dashboard() {
   const btcBalance = balances?.find((b) => b.currency === "BTC")?.balance ?? 0;
   const btcValueInUsd = btcPrice ? btcBalance * btcPrice : null;
   const portfolioTotal = btcValueInUsd !== null ? usdBalance + btcValueInUsd : null;
-  const isEmpty = balances && usdBalance === 0 && btcBalance === 0;
 
   return (
     <div className="page">
@@ -113,21 +115,35 @@ export default function Dashboard() {
             )}
           </div>
 
-          {isEmpty && (
-            <div className="panel" style={{ marginBottom: "1.5rem" }}>
-              <p className="placeholder-note" style={{ marginBottom: "0.75rem" }}>
-                Your wallet is empty. Get simulated funds to start trading.
-              </p>
-              <button
-                className="submit-order buy"
-                onClick={handleGetTestFunds}
-                disabled={depositing}
+          <div className="panel" style={{ marginBottom: "1.5rem" }}>
+            <h2 style={{ marginTop: 0 }}>Add funds</h2>
+            <p className="placeholder-note" style={{ marginBottom: "0.75rem" }}>
+              Add simulated USD or BTC to your wallet any time.
+            </p>
+            <form onSubmit={handleAddFunds} style={{ display: "flex", gap: "0.5rem" }}>
+              <select
+                value={currency}
+                onChange={(e) => setCurrency(e.target.value)}
+                style={{ background: "#1a1e24", color: "#fff", border: "1px solid #333", borderRadius: "4px", padding: "0.4rem" }}
               >
-                {depositing ? "Adding funds..." : "Get Test Funds ($5,000 + 1 BTC)"}
+                <option value="USD">USD</option>
+                <option value="BTC">BTC</option>
+              </select>
+              <input
+                type="number"
+                step="any"
+                min="0"
+                placeholder="Amount"
+                value={amount}
+                onChange={(e) => setAmount(e.target.value)}
+                style={{ flex: 1, background: "#1a1e24", color: "#fff", border: "1px solid #333", borderRadius: "4px", padding: "0.4rem" }}
+              />
+              <button type="submit" className="submit-order buy" disabled={depositing} style={{ padding: "0.4rem 0.8rem" }}>
+                {depositing ? "Adding..." : "Add"}
               </button>
-              {depositMessage && <p className="placeholder-note" style={{ marginTop: "0.5rem" }}>{depositMessage}</p>}
-            </div>
-          )}
+            </form>
+            {depositMessage && <p className="placeholder-note" style={{ marginTop: "0.5rem" }}>{depositMessage}</p>}
+          </div>
 
           <div className="balance-cards">
             {balances.map((b) => {

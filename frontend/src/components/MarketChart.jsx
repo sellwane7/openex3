@@ -222,6 +222,7 @@ export default function MarketChart({ pair = "BTC-USD" }) {
         </select>
       </div>
       <Chart
+        key={chartType}
         type={isFinancial ? chartType : "line"}
         data={isFinancial ? financialData : lineData}
         options={options}
