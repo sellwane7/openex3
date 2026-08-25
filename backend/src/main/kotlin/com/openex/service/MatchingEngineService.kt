@@ -85,7 +85,12 @@ class MatchingEngineService(
                 val fillQty = remaining.min(bestRemaining)
                 val fillPrice = best.order.price!! // resting order's price always wins (price-time priority)
 
-                settleTrade(order, best.order, fillQty, fillPrice)
+                // Guard: don't let a fill push either side's balance negative.
+                // If whoever's on this side of the trade can't actually cover
+                // it, treat it exactly like running out of liquidity — stop
+                // matching and let whatever filled so far stand.
+                val settled = settleTrade(order, best.order, fillQty, fillPrice)
+                if (!settled) break
 
                 val trade = if (order.side == OrderSide.BUY)
                     Trade(order.id, best.order.id, fillPrice, fillQty)
@@ -204,8 +209,14 @@ class MatchingEngineService(
      * Moves funds for one fill via the double-entry LedgerService. For a
      * BTC-USD trade: buyer pays quantity*price USD and receives quantity BTC;
      * seller receives quantity*price USD and gives up quantity BTC.
+     *
+     * Returns false (and posts nothing) if either party can't cover their
+     * side of the fill, so a trade can never leave a real account negative.
+     * This intentionally does NOT apply to deposits (WalletController), which
+     * debit the system faucet account by design — that account is allowed
+     * to go negative since it represents an unlimited simulated source of funds.
      */
-    private fun settleTrade(incoming: Order, resting: Order, quantity: BigDecimal, price: BigDecimal) {
+    private fun settleTrade(incoming: Order, resting: Order, quantity: BigDecimal, price: BigDecimal): Boolean {
         val (buyOrder, sellOrder) = if (incoming.side == OrderSide.BUY) incoming to resting else resting to incoming
         val (baseCurrency, quoteCurrency) = incoming.currencyPair.split("-").let { it[0] to it[1] }
 
@@ -216,9 +227,13 @@ class MatchingEngineService(
 
         val quoteAmount = quantity * price
 
+        if (ledgerService.getBalance(buyerQuote.id) < quoteAmount) return false
+        if (ledgerService.getBalance(sellerBase.id) < quantity) return false
+
         // Leg 1: buyer's quote currency (USD) -> seller's quote currency (USD)
         ledgerService.transfer(buyerQuote.id, sellerQuote.id, quoteAmount)
         // Leg 2: seller's base currency (BTC) -> buyer's base currency (BTC)
         ledgerService.transfer(sellerBase.id, buyerBase.id, quantity)
+        return true
     }
 }
