@@ -118,4 +118,41 @@ class MatchingEngineServiceTest {
             assertEquals(0, BigDecimal("0.02000000").compareTo(ledgerService.getBalance(btcAcc.id)))
         }
     }
+
+    @Test
+    fun `a buy order that would overdraw the buyer's balance is not settled`() {
+        val (sellerId, _, _) = newTrader(btcFunding = BigDecimal("1.0"))
+        // Buyer only has 10 USD funded — nowhere near enough for 0.10 BTC at 50000.
+        val (buyerId, buyerUsd, buyerBtc) = newTrader(usdFunding = BigDecimal("10.00"))
+
+        // A price unique to this test, so if the sell order below is ever left
+        // resting it can't be picked up by another test's buy order matching
+        // at the shared 50000.00 level used elsewhere in this file.
+        val price = BigDecimal("73555.00")
+
+        val sellOrder = orderRepository.save(
+            Order(userId = sellerId, side = OrderSide.SELL, type = OrderType.LIMIT,
+                price = price, quantity = BigDecimal("0.10"))
+        )
+        matchingEngine.submit(sellOrder)
+
+        val buyOrder = orderRepository.save(
+            Order(userId = buyerId, side = OrderSide.BUY, type = OrderType.LIMIT,
+                price = price, quantity = BigDecimal("0.10"))
+        )
+        val trades = matchingEngine.submit(buyOrder)
+
+        assertEquals(0, trades.size, "the trade must not execute — the buyer can't cover it")
+        assertTrue(
+            ledgerService.getBalance(buyerUsd.id) >= BigDecimal.ZERO,
+            "buyer's USD balance must never go negative"
+        )
+        assertEquals(0, BigDecimal("10.00").compareTo(ledgerService.getBalance(buyerUsd.id)))
+        assertEquals(0, BigDecimal.ZERO.compareTo(ledgerService.getBalance(buyerBtc.id)))
+
+        // Clean up: the sell order is still legitimately resting (correct
+        // behavior — it just never got matched). Cancel it so it can't
+        // affect any other test sharing this in-memory order book.
+        matchingEngine.cancel(sellOrder.id, sellerId)
+    }
 }
