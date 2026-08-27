@@ -2,6 +2,14 @@
 
 A lightweight, simulated crypto exchange built as a 3-week capstone project, using a fully open-source microservices architecture: a Kotlin/Spring Boot trading engine, a React real-time UI, and a Python/LangChain AI trading assistant powered by a local Ollama model.
 
+## Demo
+
+Live demo: https://openex3.vercel.app
+
+- Register an account and deposit simulated funds into your wallet
+- Place buy/sell orders and watch the order book update in real time
+- Open the floating AI chat widget and ask about your balance or the market
+
 ## Prerequisites
 
 - Docker Desktop (with Docker Compose)
