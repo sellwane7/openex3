@@ -6,6 +6,7 @@ import Dashboard from "./pages/Dashboard.jsx";
 import Trading from "./pages/Trading.jsx";
 import Login from "./pages/Login.jsx";
 import Register from "./pages/Register.jsx";
+import ForgotPassword from "./pages/ForgotPassword.jsx";
 import ChatWidget from "./components/ChatWidget.jsx";
 import { useAuthStore } from "./store/authStore";
 
@@ -39,6 +40,7 @@ export default function App() {
         />
         <Route path="/login" element={<Login />} />
         <Route path="/register" element={<Register />} />
+        <Route path="/forgot-password" element={<ForgotPassword />} />
       </Routes>
       {isAuthenticated && <ChatWidget />}
     </div>
