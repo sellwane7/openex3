@@ -257,7 +257,7 @@ a { color: inherit; }
 
 .segmented button.active.buy {
   background: rgba(46, 230, 166, 0.15);
-  color: var(--accent);
+  color: var(--success);
 }
 
 .segmented button.active.sell {
@@ -276,7 +276,7 @@ a { color: inherit; }
 }
 
 .submit-order.buy {
-  background: var(--accent);
+  background: var(--success);
 }
 
 .submit-order.sell {
@@ -362,7 +362,7 @@ a { color: inherit; }
 }
 
 .bid-row .row-price {
-  color: var(--accent);
+  color: var(--success);
 }
 
 .order-book-spread {
@@ -403,7 +403,7 @@ a { color: inherit; }
 }
 
 .side-buy {
-  color: var(--accent);
+  color: var(--success);
 }
 
 .side-sell {
@@ -1067,11 +1067,11 @@ a { color: inherit; }
 }
 
 .nav-ticker--up .nav-ticker__price {
-  color: var(--accent);
+  color: var(--success);
 }
 
 .nav-ticker--down .nav-ticker__price {
-  color: #e05a5a;
+  color: var(--danger);
 }
 
 .nav-ticker--up {

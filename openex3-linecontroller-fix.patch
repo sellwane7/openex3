@@ -1,0 +1,65 @@
+From 2128d7004b5b76ad7ecb4fecf454853b004707d1 Mon Sep 17 00:00:00 2001
+From: sellwane7 <sellwanemosia708@gmail.com>
+Date: Fri, 21 Aug 2026 09:48:08 +0000
+Subject: [PATCH] Fix Trading page crash: register missing Chart.js controllers
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+
+The ErrorBoundary added previously caught the real cause: '"line" is
+not a registered controller'. Chart.js v4 requires each chart type's
+Controller registered separately from its Element/Scale — MarketChart
+only registered LineElement/PointElement, never LineController, so
+mounting the chart (which defaults to chartType: 'line') threw
+immediately.
+
+- MarketChart.jsx: register LineController alongside LineElement.
+- VolumeChart.jsx: same missing-controller bug (BarController), fixed
+  preemptively even though it's currently unused/not imported anywhere.
+---
+ frontend/src/components/MarketChart.jsx | 2 ++
+ frontend/src/components/VolumeChart.jsx | 3 ++-
+ 2 files changed, 4 insertions(+), 1 deletion(-)
+
+diff --git a/frontend/src/components/MarketChart.jsx b/frontend/src/components/MarketChart.jsx
+index aa2e290..5cd9359 100644
+--- a/frontend/src/components/MarketChart.jsx
++++ b/frontend/src/components/MarketChart.jsx
+@@ -5,6 +5,7 @@ import {
+   LinearScale,
+   PointElement,
+   LineElement,
++  LineController,
+   Filler,
+   Title,
+   Tooltip,
+@@ -24,6 +25,7 @@ ChartJS.register(
+   LinearScale,
+   PointElement,
+   LineElement,
++  LineController,
+   Filler,
+   Title,
+   Tooltip,
+diff --git a/frontend/src/components/VolumeChart.jsx b/frontend/src/components/VolumeChart.jsx
+index 5c1ff60..e4162d6 100644
+--- a/frontend/src/components/VolumeChart.jsx
++++ b/frontend/src/components/VolumeChart.jsx
+@@ -4,12 +4,13 @@ import {
+   CategoryScale,
+   LinearScale,
+   BarElement,
++  BarController,
+   Tooltip,
+ } from "chart.js";
+ import { Bar } from "react-chartjs-2";
+ import { fetchMarketTicks } from "../api/marketClient";
+ 
+-ChartJS.register(CategoryScale, LinearScale, BarElement, Tooltip);
++ChartJS.register(CategoryScale, LinearScale, BarElement, BarController, Tooltip);
+ 
+ const POLL_INTERVAL_MS = 5000;
+ 
+-- 
+2.43.0
+
