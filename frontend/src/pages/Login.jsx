@@ -51,9 +51,12 @@ export default function Login() {
           <input type="password" value={password} onChange={(e) => setPassword(e.target.value)} placeholder="Your password" required />
         </label>
         {error && <p className="form-error">{error}</p>}
-        <button type="submit" className="auth-submit" disabled={loading}>
+                <button type="submit" className="auth-submit" disabled={loading}>
           {loading ? "Signing in..." : "Sign in"}
         </button>
+        <p className="auth-forgot">
+          <Link to="/forgot-password">Forgot password?</Link>
+        </p>
       </form>
     </AuthLayout>
   );
