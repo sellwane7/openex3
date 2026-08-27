@@ -790,17 +790,6 @@ a { color: inherit; }
   }
 }
 
-.auth-hero__features li {
-  display: flex;
-  align-items: center;
-  gap: 0.6rem;
-  padding-left: 0;
-}
-
-.auth-hero__features li::before {
-  content: none;
-}
-
 @media (max-width: 860px) {
   .auth-hero {
     border-right: none;
@@ -885,22 +874,11 @@ a { color: inherit; }
 }
 
 .auth-hero__features li {
-  position: relative;
-  padding-left: 1.3rem;
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
   color: var(--ink);
   font-size: 0.92rem;
-}
-
-.auth-hero__features li::before {
-  content: "";
-  position: absolute;
-  left: 0;
-  top: 0.5em;
-  width: 8px;
-  height: 8px;
-  background: var(--accent);
-  border-radius: 2px;
-  transform: rotate(45deg);
 }
 
 .auth-card-wrap {
