@@ -53,7 +53,7 @@ export default function ChatWidget() {
       {isOpen && (
         <div className="chat-widget__panel">
           <div className="chat-widget__header">
-            <span>Candle · AI Trading Assistant</span>
+            <span>Candle</span>
             <button
               className="chat-widget__close"
               onClick={() => setIsOpen(false)}
@@ -94,12 +94,23 @@ export default function ChatWidget() {
         </div>
       )}
 
-      <button
+            <button
         className="chat-widget__toggle"
         onClick={() => setIsOpen((v) => !v)}
         aria-label={isOpen ? "Close chat" : "Open chat"}
       >
-        {isOpen ? "×" : "💬"}
+        {isOpen ? (
+          "×"
+        ) : (
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+            <path
+              d="M4 4h16v11H8l-4 4V4z"
+              stroke="currentColor"
+              strokeWidth="1.6"
+              strokeLinejoin="round"
+            />
+          </svg>
+        )}
       </button>
     </div>
   );
