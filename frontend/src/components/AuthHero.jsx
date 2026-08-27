@@ -1,8 +1,8 @@
 ﻿const FEATURES = [
-  "Real double-entry ledger, not simple math",
+  "Real double entry ledger, not simple math",
   "Live order book over WebSockets",
   "Built-in trading assistant",
-  "Safe to experiment — no real money, ever",
+  "Trade with virtual funds, zero risk to your capital",
 ];
 
 // Hand-authored candlestick series — an original chart visual, not a photo.
@@ -86,11 +86,11 @@ export default function AuthHero() {
 
       <div className="auth-hero__content">
         <span className="auth-hero__eyebrow">OpenEx 3.0</span>
-        <h1 className="auth-hero__title">A simulated crypto exchange, built to feel real.</h1>
+        <h1 className="auth-hero__title">Trade crypto markets with real precision.</h1>
         <p className="auth-hero__lede">
-          Every order routes through a real matching engine and a live order book.
-          The built-in assistant can check your balance or an order for you.
-          Funds are simulated, so nothing here is real money.
+          Every order routes through a real matching engine and a live order book,
+          with instant execution and transparent pricing. Sharpen your strategy on
+          virtual funds before you commit real capital.
         </p>
         <ul className="auth-hero__features">
           {FEATURES.map((f) => (
