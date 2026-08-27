@@ -2,33 +2,6 @@
 
 A lightweight, simulated crypto exchange built as a 3-week capstone project, using a fully open-source microservices architecture: a Kotlin/Spring Boot trading engine, a React real-time UI, and a Python/LangChain AI trading assistant powered by a local Ollama model.
 
-## Architecture
-                +-------------------+
-                |   React Frontend  |  (Vite, port 5173)
-                +---------+---------+
-                          |
-          +---------------+----------------+
-          |                                 |
-+---------v---------+           +-----------v-----------+
-|  Kotlin Backend    |           |   Python AI Service    |
-|  Spring Boot       |<----------|   Flask + LangChain    |
-|  port 8080         |  wallet   |   port 5000             |
-+---------+----------+  lookup   +-----------+-------------+
-          |                                   |
-+---------+----------+                        |
-|                    |                +--------v--------+
-
-+---v----+ +----v----+ | Ollama (host) |
-|Postgres| | Redis | | llama3.2, 11434 |
-| 5432 | | 6379 | +-------------------+
-+--------+ +---------+
-
-
-- **Backend (Kotlin/Spring Boot)** - double-entry ledger, JWT auth, idempotent orders, in-memory matching engine, WebSocket order book broadcasting.
-- **Frontend (React/Vite)** - trading terminal UI: auth, order forms, live order book, market chart, floating AI chat widget.
-- **Python AI Service (Flask/LangChain)** - simulated market data (Pandas/NumPy), and a ReAct agent that can call a tool to fetch a user's real wallet balance from the Kotlin backend.
-- **Ollama** - runs the local LLM (`llama3.2`) that powers the AI assistant, fully containerized alongside the rest of the stack with its own persistent volume for model storage.
-
 ## Prerequisites
 
 - Docker Desktop (with Docker Compose)
@@ -45,7 +18,7 @@ docker exec -it openex-ollama ollama pull llama3.2
 
 2. **Clone the repo and enter the project root:**
 ```bash
-   cd openex3
+cd openex3
 ```
 
 ## Running the full stack
@@ -152,6 +125,7 @@ Uses an in-memory H2 database, no Docker required.
 
 Feature-branch workflow, Conventional Commits, PR required for every merge into `main`, CI must pass before merge.
 
+```
 feature/project-scaffolding (Week 1, Day 1)
 feature/double-entry-ledger (Week 1, Day 2)
 feature/jwt-auth-and-wallet (Week 1, Day 3)
@@ -160,7 +134,7 @@ feature/matching-engine (Week 1, Day 5)
 feature/websocket-orderbook (Week 2, Day 6)
 feature/react-scaffold (Week 2, Days 7-10)
 feature/market-simulator (Week 3, Days 11-15)
-
+```
 
 PR titles matching the brief's requirements:
 - `feat(core): matching engine and ledger integration` (Week 1)
