@@ -1,7 +1,7 @@
 ﻿const FEATURES = [
   "Real double-entry ledger, not simple math",
   "Live order book over WebSockets",
-  "AI trading assistant powered by a local LLM",
+  "Built-in trading assistant",
   "Safe to experiment — no real money, ever",
 ];
 
@@ -74,6 +74,16 @@ export default function AuthHero() {
         <circle className="auth-hero__pulse" cx="554" cy="100" r="4" fill="var(--accent)" />
       </svg>
 
+            <div className="auth-hero__ticker" aria-hidden="true">
+        <div className="auth-hero__ticker-track">
+          {["BTC-USD 42,318.60", "ETH-USD 2,940.15", "SOL-USD 148.32", "BNB-USD 512.77", "XRP-USD 0.612"].concat(
+            ["BTC-USD 42,318.60", "ETH-USD 2,940.15", "SOL-USD 148.32", "BNB-USD 512.77", "XRP-USD 0.612"]
+          ).map((item, i) => (
+            <span className="auth-hero__ticker-item" key={i}>{item}</span>
+          ))}
+        </div>
+      </div>
+
       <div className="auth-hero__content">
         <span className="auth-hero__eyebrow">OpenEx 3.0</span>
         <h1 className="auth-hero__title">A simulated crypto exchange, built to feel real.</h1>
@@ -84,7 +94,13 @@ export default function AuthHero() {
         </p>
         <ul className="auth-hero__features">
           {FEATURES.map((f) => (
-            <li key={f}>{f}</li>
+            <li key={f}>
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                <circle cx="12" cy="12" r="10" stroke="var(--accent)" strokeWidth="1.6" />
+                <path d="M8 12.5l2.5 2.5L16 9.5" stroke="var(--accent)" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" />
+              </svg>
+              {f}
+            </li>
           ))}
         </ul>
       </div>
